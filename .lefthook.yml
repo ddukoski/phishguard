@@ -1,0 +1,9 @@
+pre-push:
+  parallel: false
+  commands:
+    frontend:lint:
+      run: npm run lint
+    frontend:build:
+      run: npm run build
+    backend:pint:
+      run: composer --working-dir=api run-script lint
