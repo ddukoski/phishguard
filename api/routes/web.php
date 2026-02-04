@@ -8,4 +8,3 @@ Route::fallback(function () {
         'message' => 'This server is API only. Use /api/* endpoints instead.'
     ], 404);
 });
-
