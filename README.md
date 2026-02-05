@@ -1,14 +1,47 @@
 # PhishGuard
 
-## Project Description
-
+## Project
+---
+### Project Description
 *TODO*
 
+### Project Structure
+
+The project is structured so that there is one directory (`api`) that defines the backend APIs in Laravel, and the rest is React frontend, external to the `api` directory.
+
+```bash
+├── api                 # Laravel backend
+├── eslint.config.js    # the rest below defines the React frontend
+├── index.html
+├── package-lock.json
+├── package.json
+├── public
+├── src
+├── README.md
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+```
+
 ## Quick start
+---
+Below are short steps to get the full stack running locally and keep the code clean.
 
-Short, practical steps to get the full stack running locally and keep the code clean.
+### Cloning
+First clone the repository with HTTPS:
 
-Prereqs
+```bash
+git clone https://github.com/ddukoski/phishguard.git
+```
+
+or SSH:
+```bash
+git clone git@github.com:ddukoski/phishguard.git
+```
+
+
+### Prerequisites
 - Node 18+ (Node 20 recommended)
 - PHP 8.2+
 - Composer
@@ -49,6 +82,7 @@ composer --working-dir=api run-script lint
 ```
 
 ## CI & Hooks
+---
 We use [Lefthook](https://lefthook.dev/). The pre-push hook runs frontend lint + build and backend Pint as configured in [.lefthook.yml](.lefthook.yml).
 
 To *temporarily* skip hooks: `git push --no-verify`.
