@@ -84,3 +84,8 @@ We use [Lefthook](https://lefthook.dev/). The pre-push hook runs frontend lint +
 To *temporarily* skip hooks: `git push --no-verify`.
 
 There is also a basic [CI Workflow](.github/workflows/ci.yml) in place to check if the project is ready to run when pushing new code.
+
+## Credentials for testing:
+
+Admin: admin / password
+User: testuser / password
