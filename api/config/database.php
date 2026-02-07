@@ -32,7 +32,7 @@ return [
     'connections' => [
         'mongodb' => [
             'driver'   => 'mongodb',
-            'dsn'      => env('MONGODB_URI', 'mongodb://127.0.0.1:27017'),
+            'dsn'      => env('MONGODB_URI', 'mongodb://root:example@127.0.0.1:27017'),
             'database' => env('MONGODB_DATABASE', 'phishguard'),
         ],
         'sqlite' => [
