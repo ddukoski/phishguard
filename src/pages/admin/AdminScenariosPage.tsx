@@ -66,8 +66,8 @@ export default function AdminScenariosPage() {
     setForm({
       title: scenario.title,
       description: scenario.description,
-      type: scenario.type,
-      difficulty: scenario.difficulty,
+      type: scenario.type as typeof emptyForm.type,
+      difficulty: scenario.difficulty as typeof emptyForm.difficulty,
       content: JSON.stringify(scenario.content, null, 2),
       indicators: scenario.indicators.join('\n'),
       explanation: scenario.explanation,

@@ -174,12 +174,12 @@ function ScenarioContent({ type, content }: { type: string; content: Record<stri
           <p className="text-sm"><span className="font-medium text-gray-500">Subject:</span> {content.subject as string}</p>
         </div>
         <div className="text-sm text-gray-700 whitespace-pre-wrap">{content.body as string}</div>
-        {content.has_link && (
+        {Boolean(content.has_link) && (
           <div className="mt-4 p-2 bg-blue-50 border border-blue-200 rounded">
             <p className="text-sm text-blue-700 underline cursor-pointer">{content.link_url as string}</p>
           </div>
         )}
-        {content.has_attachment && (
+        {Boolean(content.has_attachment) && (
           <div className="mt-2 flex items-center text-sm text-gray-500">
             📎 <span className="ml-1">attachment.pdf</span>
           </div>
