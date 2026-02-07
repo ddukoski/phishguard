@@ -2,13 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Services\OpenAIService;
 
-Route::get('/ping', function () {
-    return response()->json(['pong' => true]);
-});
-
-Route::post('/echo', function (Request $request) {
-    return response()->json([
-        'received' => $request->all(),
-    ]);
+Route::post('/llm/analyze', function (Request $request, OpenAIService $openAI) {
+    throw new \BadMethodCallException('Route /llm/analyze is not yet implemented');
 });
