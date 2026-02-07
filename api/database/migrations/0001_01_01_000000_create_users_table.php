@@ -21,7 +21,11 @@ return new class () extends Migration {
             $collection->string('username')->unique();
             $collection->string('email')->unique();
             $collection->string('password');
+            $collection->string('role')->default('user');
+            $collection->string('avatar')->nullable();
+            $collection->boolean('is_active')->default(true);
             $collection->timestamp('email_verified_at')->nullable();
+            $collection->timestamp('last_login_at')->nullable();
             $collection->rememberToken();
             $collection->timestamps();
         });
