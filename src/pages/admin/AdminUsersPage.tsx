@@ -79,8 +79,7 @@ export default function AdminUsersPage() {
       <SectionCard>
         <div className="flex flex-col gap-3 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-base-content">Users</p>
-            <p className="text-xs text-base-content/60">Search by username</p>
+            <h1 className="text-sm font-medium text-base-content">All users</h1>
           </div>
           <input
             type="search"
