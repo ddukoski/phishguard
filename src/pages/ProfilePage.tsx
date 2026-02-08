@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
+import { BarChart3, CheckCircle2, Lock, Star, UserRound } from 'lucide-react';
 import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import LoadingState from '../components/ui/LoadingState';
+import PageHeader from '../components/ui/PageHeader';
+import SectionCard from '../components/ui/SectionCard';
+import StatTile from '../components/ui/StatTile';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -8,13 +13,18 @@ export default function ProfilePage() {
   const [stats, setStats] = useState<Record<string, number> | null>(null);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ username: '', email: '' });
-  const [passwordForm, setPasswordForm] = useState({ current_password: '', password: '', password_confirmation: '' });
+  const [passwordForm, setPasswordForm] = useState({
+    current_password: '',
+    password: '',
+    password_confirmation: '',
+  });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/profile')
+    api
+      .get('/profile')
       .then((res) => {
         setProfile(res.data.user);
         setStats(res.data.stats);
@@ -46,138 +56,143 @@ export default function ProfilePage() {
       setPasswordForm({ current_password: '', password: '', password_confirmation: '' });
       setMessage('Password updated successfully.');
     } catch (err: unknown) {
-      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Password update failed.');
+      setError(
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          'Password update failed.'
+      );
     }
   };
 
   if (loading) {
-    return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>;
+    return <LoadingState label="Loading profile" />;
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+    <div className="space-y-8">
+      <PageHeader
+        title="Profile"
+        description="Manage your account details and credentials."
+        icon={UserRound}
+      />
 
-      {message && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md text-sm">{message}</div>}
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">{error}</div>}
-
-      {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <p className="text-2xl font-bold text-blue-600">{stats.total_attempts}</p>
-            <p className="text-xs text-gray-500">Attempts</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <p className="text-2xl font-bold text-green-600">{stats.correct_attempts}</p>
-            <p className="text-xs text-gray-500">Correct</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4 text-center">
-            <p className="text-2xl font-bold text-yellow-600">{stats.total_score}</p>
-            <p className="text-xs text-gray-500">Total Score</p>
-          </div>
+      {message && (
+        <div className="alert alert-success">
+          <span className="text-sm">{message}</span>
+        </div>
+      )}
+      {error && (
+        <div className="alert alert-error">
+          <span className="text-sm">{error}</span>
         </div>
       )}
 
-      {/* Profile Info */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Account Information</h2>
-          <button
-            onClick={() => setEditing(!editing)}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-          >
+      {stats && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <StatTile label="Attempts" value={stats.total_attempts} icon={BarChart3} />
+          <StatTile label="Correct" value={stats.correct_attempts} icon={CheckCircle2} />
+          <StatTile label="Total Score" value={stats.total_score} icon={Star} />
+        </div>
+      )}
+
+      <SectionCard
+        title="Account information"
+        description="Keep your personal details accurate."
+        actions={
+          <button onClick={() => setEditing(!editing)} className="btn btn-ghost btn-sm">
             {editing ? 'Cancel' : 'Edit'}
           </button>
-        </div>
-
+        }
+      >
         {editing ? (
           <form onSubmit={handleUpdateProfile} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Username</label>
+            <label className="form-control">
+              <div className="label">
+                <span className="label-text">Username</span>
+              </div>
               <input
                 type="text"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="input input-bordered w-full"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
+            </label>
+            <label className="form-control">
+              <div className="label">
+                <span className="label-text">Email</span>
+              </div>
               <input
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="input input-bordered w-full"
               />
-            </div>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
-            >
-              Save Changes
+            </label>
+            <button type="submit" className="btn btn-primary w-fit">
+              Save changes
             </button>
           </form>
         ) : (
-          <div className="space-y-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-sm text-gray-500">Username</p>
-              <p className="font-medium text-gray-900">{profile?.username as string}</p>
+              <p className="text-xs uppercase tracking-wide text-base-content/50">Username</p>
+              <p className="text-base font-semibold text-base-content">{profile?.username as string}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="font-medium text-gray-900">{profile?.email as string}</p>
+              <p className="text-xs uppercase tracking-wide text-base-content/50">Email</p>
+              <p className="text-base font-semibold text-base-content">{profile?.email as string}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Role</p>
-              <p className="font-medium text-gray-900 capitalize">{user?.role}</p>
+              <p className="text-xs uppercase tracking-wide text-base-content/50">Role</p>
+              <p className="text-base font-semibold text-base-content capitalize">{user?.role}</p>
             </div>
           </div>
         )}
-      </div>
+      </SectionCard>
 
-      {/* Change Password */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h2>
+      <SectionCard title="Change password" description="Refresh your credentials regularly.">
         <form onSubmit={handleUpdatePassword} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Current Password</label>
+          <label className="form-control">
+            <div className="label">
+              <span className="label-text">Current password</span>
+            </div>
             <input
               type="password"
               value={passwordForm.current_password}
               onChange={(e) => setPasswordForm({ ...passwordForm, current_password: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="input input-bordered w-full"
               required
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">New Password</label>
+          </label>
+          <label className="form-control">
+            <div className="label">
+              <span className="label-text">New password</span>
+            </div>
             <input
               type="password"
               value={passwordForm.password}
               onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="input input-bordered w-full"
               required
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Confirm New Password</label>
+          </label>
+          <label className="form-control">
+            <div className="label">
+              <span className="label-text">Confirm new password</span>
+            </div>
             <input
               type="password"
               value={passwordForm.password_confirmation}
               onChange={(e) => setPasswordForm({ ...passwordForm, password_confirmation: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="input input-bordered w-full"
               required
             />
-          </div>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm font-medium"
-          >
-            Update Password
+          </label>
+          <button type="submit" className="btn btn-error w-fit">
+            <Lock className="h-4 w-4" />
+            Update password
           </button>
         </form>
-      </div>
+      </SectionCard>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { LogIn } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function LoginPage() {
@@ -18,7 +19,9 @@ export default function LoginPage() {
       await login(loginField, password);
       navigate('/dashboard', { replace: true });
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Login failed.';
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Login failed.';
       setError(message);
     } finally {
       setLoading(false);
@@ -27,56 +30,60 @@ export default function LoginPage() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 text-center">Sign In</h2>
+      <div className="space-y-2 text-center">
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <LogIn className="h-5 w-5" />
+        </div>
+        <h2 className="text-2xl font-semibold text-base-content">Sign in</h2>
+        <p className="text-sm text-base-content/60">Welcome back. Let us continue your training.</p>
+      </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
-          {error}
+        <div className="alert alert-error">
+          <span className="text-sm">{error}</span>
         </div>
       )}
 
-      <div>
-        <label htmlFor="login" className="block text-sm font-medium text-gray-700">
-          Username or Email
+      <div className="space-y-4">
+        <label className="form-control">
+          <div className="label">
+            <span className="label-text">Username or email</span>
+          </div>
+          <input
+            id="login"
+            type="text"
+            required
+            value={loginField}
+            onChange={(e) => setLoginField(e.target.value)}
+            className="input input-bordered w-full"
+            placeholder="Enter your username or email"
+          />
         </label>
-        <input
-          id="login"
-          type="text"
-          required
-          value={loginField}
-          onChange={(e) => setLoginField(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Enter username or email"
-        />
+
+        <label className="form-control">
+          <div className="label">
+            <span className="label-text">Password</span>
+          </div>
+          <input
+            id="password"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="input input-bordered w-full"
+            placeholder="Enter your password"
+          />
+        </label>
       </div>
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Enter password"
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-      >
-        {loading ? 'Signing in...' : 'Sign In'}
+      <button type="submit" disabled={loading} className="btn btn-primary w-full">
+        {loading ? 'Signing in...' : 'Sign in'}
       </button>
 
-      <p className="text-center text-sm text-gray-600">
-        Don't have an account?{' '}
-        <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
-          Sign up
+      <p className="text-center text-sm text-base-content/70">
+        New to PhishGuard?{' '}
+        <Link to="/register" className="link link-primary">
+          Create an account
         </Link>
       </p>
     </form>

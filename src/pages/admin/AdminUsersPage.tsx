@@ -1,83 +1,144 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Users } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../lib/api';
 import type { User } from '../../types';
+import LoadingState from '../../components/ui/LoadingState';
+import PageHeader from '../../components/ui/PageHeader';
+import SectionCard from '../../components/ui/SectionCard';
+import { ActiveBadge } from '../../components/ui/Badges';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [roleUpdating, setRoleUpdating] = useState<Set<string>>(new Set());
+  const [statusUpdating, setStatusUpdating] = useState<Set<string>>(new Set());
 
   const fetchUsers = () => {
-    api.get('/admin/users')
+    api
+      .get('/admin/users')
       .then((res) => setUsers(res.data.data))
       .finally(() => setLoading(false));
   };
 
   useEffect(fetchUsers, []);
 
-  const toggleStatus = async (id: string) => {
-    await api.patch(`/admin/users/${id}/toggle-status`);
-    fetchUsers();
+  const toggleStatus = async (id: string, username: string) => {
+    setStatusUpdating((prev) => new Set(prev).add(id));
+    try {
+      await api.patch(`/admin/users/${id}/toggle-status`);
+      toast.success(`${username} status updated.`);
+      fetchUsers();
+    } catch (error) {
+      toast.error(`Could not update ${username}.`);
+    } finally {
+      setStatusUpdating((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
   };
 
-  const updateRole = async (id: string, role: string) => {
-    await api.patch(`/admin/users/${id}/role`, { role });
-    fetchUsers();
+  const updateRole = async (id: string, role: string, username: string) => {
+    setRoleUpdating((prev) => new Set(prev).add(id));
+    try {
+      await api.patch(`/admin/users/${id}/role`, { role });
+      toast.success(`${username} is now ${role}.`);
+      fetchUsers();
+    } catch (error) {
+      toast.error(`Could not update ${username}.`);
+    } finally {
+      setRoleUpdating((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
   };
+
+  const filteredUsers = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return users;
+    return users.filter((user) => user.username.toLowerCase().includes(normalized));
+  }, [query, users]);
 
   if (loading) {
-    return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>;
+    return <LoadingState label="Loading users" />;
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">👥 Manage Users</h1>
+    <div className="space-y-8">
+      <PageHeader
+        title="Manage Users"
+        description="Update access, roles, and account status."
+        icon={Users}
+      />
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.username}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{user.email}</td>
-                <td className="px-6 py-4 text-sm">
-                  <select
-                    value={user.role}
-                    onChange={(e) => updateRole(user.id, e.target.value)}
-                    className="text-sm border border-gray-300 rounded px-2 py-1"
-                  >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </td>
-                <td className="px-6 py-4 text-sm">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    user.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                  }`}>
-                    {user.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm">
-                  <button
-                    onClick={() => toggleStatus(user.id)}
-                    className={`text-sm font-medium ${user.is_active ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}`}
-                  >
-                    {user.is_active ? 'Deactivate' : 'Activate'}
-                  </button>
-                </td>
+      <SectionCard>
+        <div className="flex flex-col gap-3 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium text-base-content">Users</p>
+            <p className="text-xs text-base-content/60">Search by username</p>
+          </div>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search username"
+            className="input input-bordered input-sm w-full sm:w-72"
+          />
+        </div>
+        <div className="overflow-x-auto">
+          <table className="table table-zebra">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user) => (
+                <tr key={user.id}>
+                  <td className="font-medium text-base-content">{user.username}</td>
+                  <td className="text-base-content/70">{user.email}</td>
+                  <td>
+                    <select
+                      value={user.role}
+                      onChange={(e) => updateRole(user.id, e.target.value, user.username)}
+                      className="select select-bordered select-sm"
+                      disabled={roleUpdating.has(user.id)}
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </td>
+                  <td>
+                    <ActiveBadge isActive={user.is_active} />
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => toggleStatus(user.id, user.username)}
+                      className={`btn btn-xs ${user.is_active ? 'btn-outline btn-error' : 'btn-outline btn-success'}`}
+                      disabled={statusUpdating.has(user.id)}
+                    >
+                      {statusUpdating.has(user.id)
+                        ? 'Updating...'
+                        : user.is_active
+                          ? 'Deactivate'
+                          : 'Activate'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
     </div>
   );
 }

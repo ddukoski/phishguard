@@ -2,14 +2,19 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import api from '../lib/api';
 import type { User } from '../types';
 
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  login: (loginField: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string, passwordConfirmation: string) => Promise<void>;
-  logout: () => Promise<void>;
-  loading: boolean;
-}
+type AuthContextType = {
+  readonly user: User | null;
+  readonly token: string | null;
+  readonly login: (loginField: string, password: string) => Promise<void>;
+  readonly register: (
+    username: string,
+    email: string,
+    password: string,
+    passwordConfirmation: string
+  ) => Promise<void>;
+  readonly logout: () => Promise<void>;
+  readonly loading: boolean;
+};
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -18,11 +23,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  // Restore session from localStorage on mount only
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
-      api.get('/auth/me')
+      api
+        .get('/auth/me')
         .then((res) => {
           setToken(storedToken);
           setUser(res.data.user);
@@ -38,7 +43,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Listen for forced logout (e.g. expired token 401)
   useEffect(() => {
     const handleLogout = () => {
       setToken(null);
@@ -55,7 +59,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.data.user);
   };
 
-  const register = async (username: string, email: string, password: string, passwordConfirmation: string) => {
+  const register = async (
+    username: string,
+    email: string,
+    password: string,
+    passwordConfirmation: string
+  ) => {
     const res = await api.post('/auth/register', {
       username,
       email,

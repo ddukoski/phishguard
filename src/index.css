@@ -1,1 +1,93 @@
-@import "tailwindcss";
+@config "../tailwind.config.js";
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import 'tailwindcss';
+@plugin "daisyui";
+
+@layer base {
+  :root {
+    --color-primary-light: oklch(60% 0.25 165);
+    --color-primary-dark: oklch(70% 0.25 165);
+  }
+
+  :root[data-theme='light'] {
+    --pg-bg: var(--color-base-light);
+    --pg-fg: #1b1f13;
+    --pg-muted: #6b725f;
+    --color-primary: var(--color-primary-light) !important;
+    --color-primary-content: #f8f6e6 !important;
+  }
+
+  :root[data-theme='dark'] {
+    --pg-bg: var(--color-base-dark);
+    --pg-fg: #e9f0dc;
+    --pg-muted: #b7c2a2;
+    --color-primary: var(--color-primary-dark) !important;
+    --color-primary-content: #0d1208 !important;
+  }
+
+  [data-theme='light'] {
+    --color-primary: var(--color-primary-light) !important;
+    --color-primary-content: #f8f6e6 !important;
+  }
+
+  [data-theme='dark'] {
+    --color-primary: var(--color-primary-dark) !important;
+    --color-primary-content: #0d1208 !important;
+  }
+
+  html {
+    font-family: 'IBM Plex Sans', ui-sans-serif, system-ui;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Space Grotesk', 'IBM Plex Sans', ui-sans-serif, system-ui;
+    color: var(--pg-fg);
+  }
+
+  body {
+    background-color: var(--pg-bg, #f7f7f2);
+    color: var(--pg-fg, #0f172a);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  :root[data-theme='light'] h1,
+  :root[data-theme='light'] h2,
+  :root[data-theme='light'] h3,
+  :root[data-theme='light'] h4,
+  :root[data-theme='light'] h5,
+  :root[data-theme='light'] h6,
+  :root[data-theme='light'] p,
+  :root[data-theme='light'] span,
+  :root[data-theme='light'] a,
+  :root[data-theme='light'] label {
+    color: #1b1f13;
+  }
+
+  :root[data-theme='dark'] h1,
+  :root[data-theme='dark'] h2,
+  :root[data-theme='dark'] h3,
+  :root[data-theme='dark'] h4,
+  :root[data-theme='dark'] h5,
+  :root[data-theme='dark'] h6,
+  :root[data-theme='dark'] p,
+  :root[data-theme='dark'] span,
+  :root[data-theme='dark'] a,
+  :root[data-theme='dark'] label {
+    color: #e9f0dc;
+  }
+}

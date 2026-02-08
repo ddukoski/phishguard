@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { UserPlus } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function RegisterPage() {
@@ -35,85 +36,89 @@ export default function RegisterPage() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 text-center">Create Account</h2>
+      <div className="space-y-2 text-center">
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <UserPlus className="h-5 w-5" />
+        </div>
+        <h2 className="text-2xl font-semibold text-base-content">Create your account</h2>
+        <p className="text-sm text-base-content/60">Start building phishing detection confidence.</p>
+      </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
-          {error}
+        <div className="alert alert-error">
+          <span className="text-sm">{error}</span>
         </div>
       )}
 
-      <div>
-        <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-          Username
+      <div className="space-y-4">
+        <label className="form-control">
+          <div className="label">
+            <span className="label-text">Username</span>
+          </div>
+          <input
+            id="username"
+            type="text"
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="input input-bordered w-full"
+            placeholder="Choose a username"
+          />
         </label>
-        <input
-          id="username"
-          type="text"
-          required
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Choose a username"
-        />
+
+        <label className="form-control">
+          <div className="label">
+            <span className="label-text">Email</span>
+          </div>
+          <input
+            id="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input input-bordered w-full"
+            placeholder="Enter your email"
+          />
+        </label>
+
+        <label className="form-control">
+          <div className="label">
+            <span className="label-text">Password</span>
+          </div>
+          <input
+            id="password"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="input input-bordered w-full"
+            placeholder="At least 8 characters"
+          />
+        </label>
+
+        <label className="form-control">
+          <div className="label">
+            <span className="label-text">Confirm password</span>
+          </div>
+          <input
+            id="password_confirmation"
+            type="password"
+            required
+            value={passwordConfirmation}
+            onChange={(e) => setPasswordConfirmation(e.target.value)}
+            className="input input-bordered w-full"
+            placeholder="Re-enter your password"
+          />
+        </label>
       </div>
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Enter your email"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Min 8 characters"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700">
-          Confirm Password
-        </label>
-        <input
-          id="password_confirmation"
-          type="password"
-          required
-          value={passwordConfirmation}
-          onChange={(e) => setPasswordConfirmation(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Confirm your password"
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-      >
-        {loading ? 'Creating account...' : 'Create Account'}
+      <button type="submit" disabled={loading} className="btn btn-primary w-full">
+        {loading ? 'Creating account...' : 'Create account'}
       </button>
 
-      <p className="text-center text-sm text-gray-600">
-        Already have an account?{' '}
-        <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+      <p className="text-center text-sm text-base-content/70">
+        Already have access?{' '}
+        <Link to="/login" className="link link-primary">
           Sign in
         </Link>
       </p>

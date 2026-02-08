@@ -1,0 +1,71 @@
+import daisyui from 'daisyui';
+
+export default {
+  content: ['./index.html', './src/**/*.{ts,tsx,js,jsx}'],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['"Space Grotesk"', '"IBM Plex Sans"', 'ui-sans-serif', 'system-ui'],
+        body: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui'],
+      },
+    },
+  },
+  plugins: [daisyui],
+  daisyui: {
+    themes: [
+      {
+        light: {
+          primary: 'oklch(60% 0.25 165)',
+          'primary-content': '#f8f6e6',
+          secondary: 'oklch(79% 0.2 95)',
+          'secondary-content': '#1b1f13',
+          accent: 'oklch(87% 0.2 60)',
+          'accent-content': '#1b1f13',
+          neutral: '#1b1f13',
+          'neutral-content': '#f8f6e6',
+          'base-100': '#ede8e1',
+          'base-200': '#d4c5a0',
+          'base-300': '#f3edd8',
+          'base-content': '#1b1f13',
+          info: 'oklch(75% 0.15 160)',
+          'info-content': '#1b1f13',
+          success: 'oklch(60% 0.18 142)',
+          'success-content': '#f8f6e6',
+          warning: 'oklch(70% 0.2 50)',
+          'warning-content': '#f8f6e6',
+          error: 'oklch(60% 0.2 20)',
+          'error-content': '#f8f6e6',
+        },
+      },
+      {
+        dark: {
+          primary: 'oklch(70% 0.25 165)',
+          'primary-content': '#0d1208',
+          secondary: 'oklch(79% 0.2 105)',
+          'secondary-content': '#0d1208',
+          accent: 'oklch(85% 0.2 55)',
+          'accent-content': '#0d1208',
+          neutral: '#1a240f',
+          'neutral-content': '#e9f0dc',
+          'base-100': '#0d1208',
+          'base-200': '#2a3e1a',
+          'base-300': '#0f1607',
+          'base-content': '#e9f0dc',
+          info: 'oklch(78% 0.18 160)',
+          'info-content': '#0d1208',
+          success: 'oklch(67% 0.2 142)',
+          'success-content': '#0d1208',
+          warning: 'oklch(77% 0.2 50)',
+          'warning-content': '#0d1208',
+          error: 'oklch(67% 0.22 20)',
+          'error-content': '#0d1208',
+        },
+      },
+    ],
+    styled: true,
+    base: true,
+    utils: true,
+    logs: true,
+  },
+};

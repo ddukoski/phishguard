@@ -9,39 +9,48 @@ import ScenariosPage from './pages/scenarios/ScenariosPage';
 import ScenarioPlayPage from './pages/scenarios/ScenarioPlayPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminScenariosPage from './pages/admin/AdminScenariosPage';
+import ErrorBoundary from './components/ui/ErrorBoundary';
+import { ThemeProvider } from './components/ui/ThemeProvider';
+import { ThemeCustomizationProvider } from './contexts/ThemeCustomizationContext';
+import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          {/* Guest routes */}
-          <Route element={<GuestLayout />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-          </Route>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <ThemeCustomizationProvider>
+          <Toaster position="bottom-right" toastOptions={{ duration: 2400 }} />
+          <BrowserRouter>
+            <AuthProvider>
+              <Routes>
+                <Route element={<GuestLayout />}>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                </Route>
 
-          {/* Authenticated routes */}
-          <Route element={<AppLayout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/scenarios" element={<ScenariosPage />} />
-            <Route path="/scenarios/:id" element={<ScenarioPlayPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+                <Route element={<AppLayout />}>
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/scenarios" element={<ScenariosPage />} />
+                  <Route path="/scenarios/:id" element={<ScenarioPlayPage />} />
+                  <Route path="/leaderboard" element={<LeaderboardPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
 
-            {/* Admin routes */}
-            <Route path="/admin" element={<AdminDashboardPage />} />
-            <Route path="/admin/users" element={<AdminUsersPage />} />
-            <Route path="/admin/scenarios" element={<AdminScenariosPage />} />
-          </Route>
+                  <Route path="/admin" element={<AdminDashboardPage />} />
+                  <Route path="/admin/users" element={<AdminUsersPage />} />
+                  <Route path="/admin/scenarios" element={<AdminScenariosPage />} />
+                </Route>
 
-          {/* Default redirect */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+                <Route path="*" element={<Navigate to="/login" replace />} />
+              </Routes>
+            </AuthProvider>
+          </BrowserRouter>
+        </ThemeCustomizationProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }

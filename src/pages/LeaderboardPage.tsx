@@ -1,63 +1,94 @@
 import { useEffect, useState } from 'react';
+import { Medal, Trophy } from 'lucide-react';
 import api from '../lib/api';
+import LoadingState from '../components/ui/LoadingState';
+import EmptyState from '../components/ui/EmptyState';
+import PageHeader from '../components/ui/PageHeader';
+import SectionCard from '../components/ui/SectionCard';
 
-interface LeaderboardEntry {
-  username: string;
-  avatar?: string;
-  total_score: number;
-  total_correct: number;
-  total_attempts: number;
-}
+type LeaderboardEntry = {
+  readonly username: string;
+  readonly avatar?: string;
+  readonly total_score: number;
+  readonly total_correct: number;
+  readonly total_attempts: number;
+};
 
 export default function LeaderboardPage() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/progress/leaderboard')
+    api
+      .get('/progress/leaderboard')
       .then((res) => setEntries(res.data.leaderboard))
       .finally(() => setLoading(false));
   }, []);
 
   if (loading) {
-    return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>;
+    return <LoadingState label="Loading leaderboard" />;
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">🏆 Leaderboard</h1>
+    <div className="space-y-8">
+      <PageHeader
+        title="Leaderboard"
+        description="See who is leading the threat detection scoreboard."
+        icon={Trophy}
+      />
 
       {entries.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-          No entries yet. Complete some scenarios to appear on the leaderboard!
-        </div>
+        <EmptyState
+          title="No leaderboard data yet"
+          description="Complete scenarios to appear on the leaderboard."
+        />
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rank</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Score</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Correct</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attempts</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {entries.map((entry, index) => (
-                <tr key={index} className={index < 3 ? 'bg-yellow-50' : ''}>
-                  <td className="px-6 py-4 text-sm font-bold text-gray-900">
-                    {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{entry.username}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-blue-600">{entry.total_score}</td>
-                  <td className="px-6 py-4 text-sm text-green-600">{entry.total_correct}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{entry.total_attempts}</td>
+        <SectionCard>
+          <div className="overflow-x-auto">
+            <table className="table table-zebra">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>User</th>
+                  <th>Score</th>
+                  <th>Correct</th>
+                  <th>Attempts</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {entries.map((entry, index) => (
+                  <tr
+                    key={`${entry.username}-${index}`}
+                    className={index < 3 ? 'bg-base-200/50' : ''}
+                  >
+                    <td>
+                      <div className="flex items-center gap-2 font-semibold">
+                        {index < 3 ? (
+                          <>
+                            {index === 0 ? (
+                              <Trophy className="h-4 w-4 text-amber-500" />
+                            ) : (
+                              <Medal
+                                className={`h-4 w-4 ${index === 1 ? 'text-slate-400' : 'text-amber-700'}`}
+                              />
+                            )}
+                            <span>#{index + 1}</span>
+                          </>
+                        ) : (
+                          <span className="text-base-content/70">#{index + 1}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="font-medium text-base-content">{entry.username}</td>
+                    <td className="font-semibold text-primary">{entry.total_score}</td>
+                    <td className="text-success">{entry.total_correct}</td>
+                    <td className="text-base-content/70">{entry.total_attempts}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </SectionCard>
       )}
     </div>
   );
