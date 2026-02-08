@@ -60,29 +60,42 @@ npx lefthook install
 
 ### Database & Environment Setup
 
-The project requires MongoDB Community Edition. If you are on macOS, use Homebrew:
+The project uses MongoDB via Docker.
+
+#### 1. Start MongoDB with Docker
 
 ```bash
-# Tap the official MongoDB repository
-brew tap mongodb/brew
+docker run -d \
+  --name phishguard-mongo \
+  -p 27017:27017 \
+  -e MONGO_INITDB_ROOT_USERNAME=root \
+  -e MONGO_INITDB_ROOT_PASSWORD=example \
+  mongo:8
+```
 
-# Install and start the MongoDB service
-brew install mongodb-community@8.0
-brew services start mongodb-community@8.0
+or just start the whole compose with:
+```bash
+docker compose up -d
+```
 
-# Install the extension via PECL
+#### 2. PHP MongoDB extension
+
+Make sure the PHP MongoDB extension is installed:
+
+```bash
+# Install via PECL
 sudo pecl install mongodb
 
 # Enable the extension in your active php.ini
-# This command automatically appends the line to your loaded config file
 echo 'extension="mongodb.so"' >> $(php -r "echo php_ini_loaded_file();")
-composer install
+```
+#### 3. DB credentials
+- Set the db url and credetials in you .env
+- Currently the local url and credetials are set aas fallback values in case they are not set in .env
 
-# Test connection
-php artisan tinker --execute="DB::connection('mongodb')->command(['ping' => 1])"
-it should return: *MongoDB\Driver\Cursor*
- ```
-#### Possible MacOS troubleshouting
+<details>
+<summary>Possible macOS troubleshooting</summary>
+
 ```bash
 # Remove the quarantine attribute
 sudo xattr -d com.apple.quarantine $(php-config --extension-dir)/mongodb.so
@@ -90,7 +103,37 @@ sudo xattr -d com.apple.quarantine $(php-config --extension-dir)/mongodb.so
 # Re-sign the binary locally
 codesign --force --sign - $(php-config --extension-dir)/mongodb.so
 ```
-//todo: migrations
+</details>
+
+#### 3. Configure environment
+
+```bash
+cp api/.env.example api/.env
+```
+
+Then set the following values in `api/.env`:
+
+```dotenv
+DB_CONNECTION=mongodb
+MONGODB_URI="mongodb://root:example@127.0.0.1:27017"
+MONGODB_DATABASE=phishguard
+```
+
+#### 4. Run migrations & seed
+
+```bash
+cd api
+php artisan migrate --seed
+```
+
+This creates all collections and seeds the database with test data.
+
+#### 5. Verify connection
+
+```bash
+php artisan tinker --execute="DB::connection('mongodb')->command(['ping' => 1])"
+# Should return: MongoDB\Driver\Cursor
+```
 
 ### Run locally
 To start the frontend dev server, run:

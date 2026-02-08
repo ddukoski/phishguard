@@ -2,47 +2,34 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Auth\User as Authenticatable;
+use MongoDB\Laravel\Relations\HasMany;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasApiTokens;
     use HasFactory;
     use Notifiable;
 
-    /**
-     * The connection name for the model.
-     *
-     * @var string
-     */
     protected $connection = 'mongodb';
 
-    /**
-     * The collection associated with the model.
-     *
-     * @var string
-     */
     protected $collection = 'users';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'username',
         'email',
         'password',
+        'role',
+        'avatar',
+        'is_active',
+        'email_verified_at',
+        'last_login_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -59,5 +46,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Check if the user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Get the scenario attempts for the user.
+     */
+    public function scenarioAttempts(): HasMany
+    {
+        return $this->hasMany(ScenarioAttempt::class);
+    }
+
+    /**
+     * Get the activity logs for the user.
+     */
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
     }
 }
