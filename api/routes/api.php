@@ -2,13 +2,14 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Services\OpenAIService;
 
-Route::get('/ping', function () {
-    return response()->json(['pong' => true]);
-});
+Route::post('/llm/analyze', function (Request $request, OpenAIService $openAI) {
+    $data = $request->validate([
+        'text' => ['required', 'string', 'max:20000'],
+    ]);
 
-Route::post('/echo', function (Request $request) {
     return response()->json([
-        'received' => $request->all(),
+        'analysis' => $openAI->analyzeUserReport($data['text']),
     ]);
 });
