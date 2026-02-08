@@ -1,9 +1,8 @@
 # PhishGuard
 
 ## Project
----
 ### Project Description
-*TODO*
+PhishGuard is an interactive phishing awareness training platform that helps users develop skills to identify and avoid phishing attacks. Users practice with realistic simulated phishing scenarios, receive instant feedback on their decisions, and track their improvement over time through a gamified leaderboard system. Administrators can manage scenarios and monitor user progress across the organization.
 
 ### Project Structure
 
@@ -25,7 +24,6 @@ The project is structured so that there is one directory (`api`) that defines th
 ```
 
 ## Quick start
----
 Below are short steps to get the full stack running locally and keep the code clean.
 
 ### Cloning
@@ -155,7 +153,6 @@ composer --working-dir=api run-script lint
 ```
 
 ## CI & Hooks
----
 We use [Lefthook](https://lefthook.dev/). The pre-push hook runs frontend lint + build and backend Pint as configured in [.lefthook.yml](.lefthook.yml).
 
 To *temporarily* skip hooks: `git push --no-verify`.
