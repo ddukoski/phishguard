@@ -31,8 +31,8 @@ return [
 
     'connections' => [
         'mongodb' => [
-            'driver'   => 'mongodb',
-            'dsn'      => env('MONGODB_URI', 'mongodb://root:example@127.0.0.1:27017'),
+            'driver' => 'mongodb',
+            'dsn' => env('MONGODB_URI', 'mongodb://root:example@127.0.0.1:27017/?authSource=admin'),
             'database' => env('MONGODB_DATABASE', 'phishguard'),
         ],
         'sqlite' => [

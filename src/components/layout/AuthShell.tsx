@@ -15,11 +15,16 @@ export default function AuthShell({ children }: AuthShellProps) {
         </div>
         <div className="w-full max-w-md space-y-6">
           <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50">Security training</p>
-            <h1 className="text-3xl font-semibold text-base-content">Build better threat instincts.</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50">
+              Security training
+            </p>
+            <h1 className="text-3xl font-semibold text-base-content">
+              Build better threat instincts.
+            </h1>
           </div>
           <p className="text-lg text-base-content/70">
-            Build instincts that spot scams in seconds. Train on realistic scenarios and track your improvement.
+            Build instincts that spot scams in seconds. Train on realistic scenarios and track your
+            improvement.
           </p>
           <div className="grid gap-3 text-sm text-base-content/70">
             <div className="flex items-center gap-3">
@@ -37,8 +42,8 @@ export default function AuthShell({ children }: AuthShellProps) {
           </div>
         </div>
         <div className="w-full max-w-md">
-          <div className="card border border-base-200 bg-base-100 shadow-xl">
-            <div className="card-body gap-6">{children}</div>
+          <div className="card border border-base-300 bg-base-200/30 dark:bg-base-300 shadow-xl">
+            <div className="card-body p-8 gap-8">{children}</div>
           </div>
         </div>
       </div>
