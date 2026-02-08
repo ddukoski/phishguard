@@ -30,7 +30,7 @@ export default function AdminUsersPage() {
       await api.patch(`/admin/users/${id}/toggle-status`);
       toast.success(`${username} status updated.`);
       fetchUsers();
-    } catch (error) {
+    } catch {
       toast.error(`Could not update ${username}.`);
     } finally {
       setStatusUpdating((prev) => {
@@ -47,7 +47,7 @@ export default function AdminUsersPage() {
       await api.patch(`/admin/users/${id}/role`, { role });
       toast.success(`${username} is now ${role}.`);
       fetchUsers();
-    } catch (error) {
+    } catch {
       toast.error(`Could not update ${username}.`);
     } finally {
       setRoleUpdating((prev) => {

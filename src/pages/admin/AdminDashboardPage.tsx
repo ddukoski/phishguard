@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BarChart3, Users, ListChecks, Gauge, Target } from 'lucide-react';
+import { BarChart3, Users, Gauge, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../lib/api';
 import LoadingState from '../../components/ui/LoadingState';
