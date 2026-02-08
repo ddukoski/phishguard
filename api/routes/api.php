@@ -6,7 +6,9 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ScenarioController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Services\OpenAIService;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,5 +67,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/scenarios/{id}', [AdminScenarioController::class, 'show']);
         Route::put('/scenarios/{id}', [AdminScenarioController::class, 'update']);
         Route::delete('/scenarios/{id}', [AdminScenarioController::class, 'destroy']);
+    });
+
+    Route::post('/llm/analyze', function (Request $request, OpenAIService $openAI) {
+        $data = $request->validate([
+            'text' => ['required', 'string', 'max:20000'],
+        ]);
+
+        return response()->json([
+            'analysis' => $openAI->analyzeUserReport($data['text']),
+        ]);
     });
 });
