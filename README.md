@@ -58,9 +58,39 @@ composer install --working-dir=api
 npx lefthook install
 ```
 
-### Database & migrating
+### Database & Environment Setup
 
-*TODO*
+The project requires MongoDB Community Edition. If you are on macOS, use Homebrew:
+
+```bash
+# Tap the official MongoDB repository
+brew tap mongodb/brew
+
+# Install and start the MongoDB service
+brew install mongodb-community@8.0
+brew services start mongodb-community@8.0
+
+# Install the extension via PECL
+sudo pecl install mongodb
+
+# Enable the extension in your active php.ini
+# This command automatically appends the line to your loaded config file
+echo 'extension="mongodb.so"' >> $(php -r "echo php_ini_loaded_file();")
+composer install
+
+# Test connection
+php artisan tinker --execute="DB::connection('mongodb')->command(['ping' => 1])"
+it should return: *MongoDB\Driver\Cursor*
+ ```
+#### Possible MacOS troubleshouting
+```bash
+# Remove the quarantine attribute
+sudo xattr -d com.apple.quarantine $(php-config --extension-dir)/mongodb.so
+
+# Re-sign the binary locally
+codesign --force --sign - $(php-config --extension-dir)/mongodb.so
+```
+//todo: migrations
 
 ### Run locally
 To start the frontend dev server, run:
