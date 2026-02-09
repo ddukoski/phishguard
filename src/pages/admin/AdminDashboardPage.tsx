@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BarChart3, Users, Gauge, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import api from '../../lib/api';
+import { useApi } from '../../contexts/AxiosContext';
 import LoadingState from '../../components/ui/LoadingState';
 import PageHeader from '../../components/ui/PageHeader';
 import StatTile from '../../components/ui/StatTile';
@@ -19,6 +19,7 @@ type AdminStats = {
 };
 
 export default function AdminDashboardPage() {
+  const api = useApi();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
 

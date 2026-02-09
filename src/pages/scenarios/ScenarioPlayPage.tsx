@@ -11,7 +11,7 @@ import {
   UserRound,
   Link2,
 } from 'lucide-react';
-import api from '../../lib/api';
+import { useApi } from '../../contexts/AxiosContext';
 import type { Scenario, ScenarioAttempt, Feedback } from '../../types';
 import PageHeader from '../../components/ui/PageHeader';
 import LoadingState from '../../components/ui/LoadingState';
@@ -27,6 +27,7 @@ const typeIconMap: Record<string, typeof Mail> = {
 };
 
 export default function ScenarioPlayPage() {
+  const api = useApi();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [scenario, setScenario] = useState<Scenario | null>(null);
@@ -102,7 +103,11 @@ export default function ScenarioPlayPage() {
         <SectionCard>
           <div className={`alert ${feedback.correct ? 'alert-success' : 'alert-error'}`}>
             <div className="flex items-center gap-3">
-              {feedback.correct ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+              {feedback.correct ? (
+                <CheckCircle2 className="h-5 w-5" />
+              ) : (
+                <XCircle className="h-5 w-5" />
+              )}
               <div>
                 <h3 className="font-semibold">
                   {feedback.correct ? 'Correct identification' : 'Needs a second look'}
@@ -112,7 +117,9 @@ export default function ScenarioPlayPage() {
             </div>
           </div>
           {attempt.score > 0 && (
-            <p className="text-sm font-semibold text-base-content">Score earned: {attempt.score} points</p>
+            <p className="text-sm font-semibold text-base-content">
+              Score earned: {attempt.score} points
+            </p>
           )}
         </SectionCard>
 

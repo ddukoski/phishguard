@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ListChecks, Plus } from 'lucide-react';
-import api from '../../lib/api';
+import { useApi } from '../../contexts/AxiosContext';
 import type { Scenario } from '../../types';
 import type { ScenarioType, Difficulty } from '../../lib/types';
 import { getErrorMessage } from '../../lib/api-types';
@@ -32,6 +32,7 @@ const emptyForm: ScenarioForm = {
 };
 
 export default function AdminScenariosPage() {
+  const api = useApi();
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
