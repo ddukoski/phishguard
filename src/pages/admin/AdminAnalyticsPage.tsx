@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BarChart3, Users, Gauge, Target } from 'lucide-react';
+import { BarChart3, Users, Gauge, Target, Percent } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApi } from '../../contexts/AxiosContext';
 import LoadingState from '../../components/ui/LoadingState';
@@ -18,7 +18,7 @@ type AdminStats = {
   };
 };
 
-export default function AdminDashboardPage() {
+export default function AdminAnalyticsPage() {
   const api = useApi();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +66,7 @@ export default function AdminDashboardPage() {
             label="Accuracy"
             value={`${stats.attempts.accuracy_rate}%`}
             helper={`${stats.attempts.correct} correct`}
-            icon={Gauge}
+            icon={Percent}
           />
         </div>
       )}

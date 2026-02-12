@@ -11,7 +11,7 @@ import ScenarioPlayPage from './pages/scenarios/ScenarioPlayPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
-import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminScenariosPage from './pages/admin/AdminScenariosPage';
 import ErrorBoundary from './components/ui/ErrorBoundary';
@@ -42,7 +42,7 @@ export default function App() {
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/settings" element={<SettingsPage />} />
 
-                    <Route path="/admin" element={<AdminDashboardPage />} />
+                    <Route path="/admin" element={<AdminAnalyticsPage />} />
                     <Route path="/admin/users" element={<AdminUsersPage />} />
                     <Route path="/admin/scenarios" element={<AdminScenariosPage />} />
                   </Route>

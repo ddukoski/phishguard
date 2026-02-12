@@ -7,7 +7,8 @@ import { getErrorMessage } from '../../lib/api-types';
 import LoadingState from '../../components/ui/LoadingState';
 import PageHeader from '../../components/ui/PageHeader';
 import SectionCard from '../../components/ui/SectionCard';
-import { ActiveBadge, DifficultyBadge, ScenarioTypeBadge } from '../../components/ui/Badges';
+import { ActiveBadge, DifficultyBadge } from '../../components/ui/Badges';
+import ScenarioTypeIcon from '../../components/ui/ScenarioTypeIcon';
 
 type ScenarioForm = {
   readonly title: string;
@@ -265,7 +266,7 @@ export default function AdminScenariosPage() {
                 <tr key={scenario.id}>
                   <td className="font-medium text-base-content">{scenario.title}</td>
                   <td>
-                    <ScenarioTypeBadge type={scenario.type} />
+                    <ScenarioTypeIcon type={scenario.type} />
                   </td>
                   <td>
                     <DifficultyBadge difficulty={scenario.difficulty} />

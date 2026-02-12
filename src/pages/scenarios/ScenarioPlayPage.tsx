@@ -3,13 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   CheckCircle2,
   XCircle,
-  ListChecks,
   Lightbulb,
   ShieldAlert,
   ShieldCheck,
   Mail,
   UserRound,
   Link2,
+  CircleAlert,
 } from 'lucide-react';
 import { useApi } from '../../contexts/AxiosContext';
 import type { Scenario, ScenarioAttempt, Feedback } from '../../types';
@@ -109,10 +109,10 @@ export default function ScenarioPlayPage() {
                 <XCircle className="h-5 w-5" />
               )}
               <div>
-                <h3 className="font-semibold">
+                <h3 className="font-semibold dark:text-black">
                   {feedback.correct ? 'Correct identification' : 'Needs a second look'}
                 </h3>
-                <p className="text-sm opacity-80">{feedback.explanation}</p>
+                <p className="text-sm opacity-80 dark:text-black">{feedback.explanation}</p>
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function ScenarioPlayPage() {
             <ul className="space-y-2 text-sm text-base-content/70">
               {feedback.indicators.map((indicator, index) => (
                 <li key={index} className="flex gap-3">
-                  <ListChecks className="mt-0.5 h-4 w-4 text-secondary" />
+                  <CircleAlert className="mt-0.5 h-4 w-4 text-secondary" />
                   <span>{indicator}</span>
                 </li>
               ))}
