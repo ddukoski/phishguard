@@ -10,6 +10,11 @@ import {
   Mail,
   UserRound,
   Link2,
+<<<<<<< Updated upstream
+=======
+  CircleAlert,
+  MessageSquare,
+>>>>>>> Stashed changes
 } from 'lucide-react';
 import api from '../../lib/api';
 import type { Scenario, ScenarioAttempt, Feedback } from '../../types';
@@ -24,6 +29,7 @@ const typeIconMap: Record<string, typeof Mail> = {
   phishing_email: Mail,
   fake_profile: UserRound,
   malicious_link: Link2,
+  messaging: MessageSquare,
 };
 
 export default function ScenarioPlayPage() {
@@ -53,10 +59,18 @@ export default function ScenarioPlayPage() {
   }, [id, navigate]);
 
   const handleDecision = async (identifiedAsThreat: boolean) => {
-    if (!attempt) return;
+    if (!attempt || !scenario) return;
     setSubmitting(true);
 
     const timeSpent = Math.round((Date.now() - startTime.current) / 1000);
+    const isCorrect = identifiedAsThreat === scenario.is_threat;
+    const score = isCorrect
+      ? scenario.difficulty === 'hard'
+        ? 30
+        : scenario.difficulty === 'medium'
+          ? 20
+          : 10
+      : 0;
 
     try {
       await api.post(`/attempts/${attempt.id}/action`, {
@@ -69,8 +83,24 @@ export default function ScenarioPlayPage() {
         time_spent_seconds: timeSpent,
       });
 
-      setFeedback(res.data.feedback);
-      setAttempt(res.data.attempt);
+      setFeedback(
+        res.data.feedback ?? {
+          correct: isCorrect,
+          explanation:
+            scenario.explanation ??
+            (isCorrect
+              ? 'Great job! You correctly identified this scenario.'
+              : `This was ${scenario.is_threat ? 'a threat' : 'safe content'}. Review the indicators below.`),
+          indicators: scenario.indicators ?? [],
+          tips: isCorrect
+            ? ['Keep practicing to maintain your skills!']
+            : [
+                'Take your time to analyze suspicious elements.',
+                'Check sender addresses and URLs carefully.',
+              ],
+        }
+      );
+      setAttempt({ ...res.data.attempt, score });
     } finally {
       setSubmitting(false);
     }
@@ -158,15 +188,26 @@ export default function ScenarioPlayPage() {
         title={scenario.title}
         description={scenario.description}
         icon={TypeIcon}
-        actions={<ScenarioTypeBadge type={scenario.type} />}
+        actions={
+          <ScenarioTypeBadge
+            type={
+              scenario.type as 'phishing_email' | 'fake_profile' | 'malicious_link' | 'messaging'
+            }
+          />
+        }
       />
 
       <SectionCard>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <span className="text-sm text-base-content/60">Difficulty</span>
           <DifficultyBadge difficulty={scenario.difficulty} />
         </div>
-        <ScenarioContent type={scenario.type} content={scenario.content} />
+        <ScenarioContent
+          type={scenario.type}
+          content={scenario.content}
+          htmlContent={scenario.html_content}
+          interactiveElements={scenario.interactive_elements}
+        />
       </SectionCard>
 
       <SectionCard title="Make the call" description="Decide whether the content is a threat.">

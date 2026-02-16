@@ -19,9 +19,12 @@ class Scenario extends Model
         'description',
         'type',
         'difficulty',
+        'is_threat',
         'content',
+        'html_content',
         'indicators',
         'explanation',
+        'interactive_elements',
         'is_active',
         'created_by',
         'media',
@@ -32,30 +35,23 @@ class Scenario extends Model
         return [
             'content' => 'array',
             'indicators' => 'array',
+            'interactive_elements' => 'array',
             'media' => 'array',
+            'is_threat' => 'boolean',
             'is_active' => 'boolean',
         ];
     }
 
-    /**
-     * Get the attempts for this scenario.
-     */
     public function attempts(): HasMany
     {
         return $this->hasMany(ScenarioAttempt::class);
     }
 
-    /**
-     * Scope: only active scenarios.
-     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * Scope: filter by type.
-     */
     public function scopeOfType($query, string $type)
     {
         return $query->where('type', $type);

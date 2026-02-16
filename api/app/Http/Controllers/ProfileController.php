@@ -10,9 +10,6 @@ use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
-    /**
-     * Get the user's profile.
-     */
     public function show(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -29,9 +26,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile.
-     */
     public function update(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -50,9 +44,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's password.
-     */
     public function updatePassword(Request $request): JsonResponse
     {
         $validated = $request->validate([

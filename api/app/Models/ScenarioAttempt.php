@@ -36,25 +36,16 @@ class ScenarioAttempt extends Model
         ];
     }
 
-    /**
-     * Get the user that made this attempt.
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the scenario for this attempt.
-     */
     public function scenario(): BelongsTo
     {
         return $this->belongsTo(Scenario::class);
     }
 
-    /**
-     * Get the action logs for this attempt.
-     */
     public function actionLogs(): HasMany
     {
         return $this->hasMany(ActivityLog::class, 'attempt_id');

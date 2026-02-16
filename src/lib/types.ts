@@ -1,7 +1,12 @@
 export const USER_ROLES = ['user', 'admin'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
-export const SCENARIO_TYPES = ['phishing_email', 'fake_profile', 'malicious_link'] as const;
+export const SCENARIO_TYPES = [
+  'phishing_email',
+  'fake_profile',
+  'malicious_link',
+  'messaging',
+] as const;
 export type ScenarioType = (typeof SCENARIO_TYPES)[number];
 
 export const DIFFICULTIES = ['easy', 'medium', 'hard'] as const;
@@ -36,6 +41,7 @@ export const SCENARIO_TYPE_DISPLAY: Record<ScenarioType, string> = {
   phishing_email: 'Phishing Email',
   fake_profile: 'Fake Profile',
   malicious_link: 'Malicious Link',
+  messaging: 'Messaging',
 };
 
 export const ATTEMPT_RESULT_DISPLAY: Record<AttemptResult, string> = {
@@ -55,6 +61,7 @@ export const SCENARIO_TYPE_COLORS: Record<ScenarioType, string> = {
   phishing_email: 'badge-info',
   fake_profile: 'badge-secondary',
   malicious_link: 'badge-accent',
+  messaging: 'badge-primary',
 };
 
 export const ATTEMPT_RESULT_COLORS: Record<AttemptResult, { label: string; className: string }> = {
