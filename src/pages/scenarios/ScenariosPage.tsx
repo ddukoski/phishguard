@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ListFilter, Target } from 'lucide-react';
-import api from '../../lib/api';
+import { useApi } from '../../contexts/AxiosContext';
 import type { Scenario } from '../../types';
 import PageHeader from '../../components/ui/PageHeader';
 import LoadingState from '../../components/ui/LoadingState';
@@ -9,6 +9,7 @@ import ScenarioCard from '../../components/scenarios/ScenarioCard';
 import SectionCard from '../../components/ui/SectionCard';
 
 export default function ScenariosPage() {
+  const api = useApi();
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ type: '', difficulty: '' });
@@ -36,7 +37,11 @@ export default function ScenariosPage() {
         icon={Target}
       />
 
-      <SectionCard title="Filters" description="Tune scenarios by type or difficulty." actions={<ListFilter className="h-4 w-4 text-base-content/60" />}>
+      <SectionCard
+        title="Filters"
+        description="Tune scenarios by type or difficulty."
+        actions={<ListFilter className="h-4 w-4 text-base-content/60" />}
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <select
             value={filter.type}

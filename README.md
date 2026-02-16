@@ -90,8 +90,8 @@ sudo pecl install mongodb
 echo 'extension="mongodb.so"' >> $(php -r "echo php_ini_loaded_file();")
 ```
 #### 3. DB credentials
-- Set the db url and credetials in you .env
-- Currently the local url and credetials are set aas fallback values in case they are not set in .env
+
+The default credentials are pre-configured in `.env.example` and match the Docker Compose setup. After copying the `.env` file, no changes are needed for local development.
 
 <details>
 <summary>Possible macOS troubleshooting</summary>
@@ -109,15 +109,19 @@ codesign --force --sign - $(php-config --extension-dir)/mongodb.so
 
 ```bash
 cp api/.env.example api/.env
+php artisan key:generate
 ```
 
-Then set the following values in `api/.env`:
-
+The default MongoDB settings are already configured:
 ```dotenv
-DB_CONNECTION=mongodb
-MONGODB_URI="mongodb://root:example@127.0.0.1:27017"
+MONGODB_URI=mongodb://root:example@127.0.0.1:27017/?authSource=admin
 MONGODB_DATABASE=phishguard
 ```
+
+> **Note:** If you have a local MongoDB installed (e.g., via Homebrew for macOS), stop it first:
+> ```bash
+> brew services stop mongodb-community
+> ```
 
 #### 4. Run migrations & seed
 

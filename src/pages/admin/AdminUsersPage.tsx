@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Users } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api from '../../lib/api';
+import { useApi } from '../../contexts/AxiosContext';
 import type { User } from '../../types';
 import LoadingState from '../../components/ui/LoadingState';
 import PageHeader from '../../components/ui/PageHeader';
@@ -9,6 +9,7 @@ import SectionCard from '../../components/ui/SectionCard';
 import { ActiveBadge } from '../../components/ui/Badges';
 
 export default function AdminUsersPage() {
+  const api = useApi();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');

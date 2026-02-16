@@ -7,14 +7,27 @@ use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
-    /**
-     * Register a new user.
-     */
+    private function createTokenCookie(string $token): \Symfony\Component\HttpFoundation\Cookie
+    {
+        return Cookie::make(
+            'token',
+            $token,
+            60 * 24 * 7,
+            '/',
+            null,
+            app()->environment('production'),
+            true,
+            false,
+            'Lax'
+        );
+    }
+
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -44,13 +57,9 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Registration successful.',
             'user' => $user->only('id', 'username', 'email', 'role'),
-            'token' => $token,
-        ], 201);
+        ], 201)->withCookie($this->createTokenCookie($token));
     }
 
-    /**
-     * Login with username/email and password.
-     */
     public function login(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -89,13 +98,9 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Login successful.',
             'user' => $user->only('id', 'username', 'email', 'role'),
-            'token' => $token,
-        ]);
+        ])->withCookie($this->createTokenCookie($token));
     }
 
-    /**
-     * Logout the current user.
-     */
     public function logout(Request $request): JsonResponse
     {
         ActivityLog::create([
@@ -109,12 +114,9 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Logged out successfully.',
-        ]);
+        ])->withCookie(Cookie::forget('token'));
     }
 
-    /**
-     * Get the authenticated user.
-     */
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();

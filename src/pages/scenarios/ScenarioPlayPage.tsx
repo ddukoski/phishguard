@@ -3,20 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   CheckCircle2,
   XCircle,
-  ListChecks,
   Lightbulb,
   ShieldAlert,
   ShieldCheck,
   Mail,
   UserRound,
   Link2,
-<<<<<<< Updated upstream
-=======
   CircleAlert,
   MessageSquare,
->>>>>>> Stashed changes
 } from 'lucide-react';
-import api from '../../lib/api';
+import { useApi } from '../../contexts/AxiosContext';
 import type { Scenario, ScenarioAttempt, Feedback } from '../../types';
 import PageHeader from '../../components/ui/PageHeader';
 import LoadingState from '../../components/ui/LoadingState';
@@ -33,6 +29,7 @@ const typeIconMap: Record<string, typeof Mail> = {
 };
 
 export default function ScenarioPlayPage() {
+  const api = useApi();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [scenario, setScenario] = useState<Scenario | null>(null);
@@ -132,17 +129,23 @@ export default function ScenarioPlayPage() {
         <SectionCard>
           <div className={`alert ${feedback.correct ? 'alert-success' : 'alert-error'}`}>
             <div className="flex items-center gap-3">
-              {feedback.correct ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+              {feedback.correct ? (
+                <CheckCircle2 className="h-5 w-5" />
+              ) : (
+                <XCircle className="h-5 w-5" />
+              )}
               <div>
-                <h3 className="font-semibold">
+                <h3 className="font-semibold dark:text-black">
                   {feedback.correct ? 'Correct identification' : 'Needs a second look'}
                 </h3>
-                <p className="text-sm opacity-80">{feedback.explanation}</p>
+                <p className="text-sm opacity-80 dark:text-black">{feedback.explanation}</p>
               </div>
             </div>
           </div>
           {attempt.score > 0 && (
-            <p className="text-sm font-semibold text-base-content">Score earned: {attempt.score} points</p>
+            <p className="text-sm font-semibold text-base-content">
+              Score earned: {attempt.score} points
+            </p>
           )}
         </SectionCard>
 
@@ -151,7 +154,7 @@ export default function ScenarioPlayPage() {
             <ul className="space-y-2 text-sm text-base-content/70">
               {feedback.indicators.map((indicator, index) => (
                 <li key={index} className="flex gap-3">
-                  <ListChecks className="mt-0.5 h-4 w-4 text-secondary" />
+                  <CircleAlert className="mt-0.5 h-4 w-4 text-secondary" />
                   <span>{indicator}</span>
                 </li>
               ))}

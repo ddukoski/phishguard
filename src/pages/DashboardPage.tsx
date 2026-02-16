@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Fish } from 'lucide-react';
-import api from '../lib/api';
+import { useApi } from '../contexts/AxiosContext';
 import type { DashboardStats, ScenarioAttempt } from '../types';
 import PageHeader from '../components/ui/PageHeader';
 import LoadingState from '../components/ui/LoadingState';
@@ -11,6 +11,7 @@ import RecentAttemptsTable from '../components/dashboard/RecentAttemptsTable';
 import DashboardEmpty from '../components/dashboard/DashboardEmpty';
 
 export default function DashboardPage() {
+  const api = useApi();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentAttempts, setRecentAttempts] = useState<ScenarioAttempt[]>([]);
   const [loading, setLoading] = useState(true);

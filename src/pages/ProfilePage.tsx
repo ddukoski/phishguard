@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarChart3, CheckCircle2, Lock, Star, UserRound } from 'lucide-react';
-import api from '../lib/api';
+import { useApi } from '../contexts/AxiosContext';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingState from '../components/ui/LoadingState';
 import PageHeader from '../components/ui/PageHeader';
@@ -8,6 +8,7 @@ import SectionCard from '../components/ui/SectionCard';
 import StatTile from '../components/ui/StatTile';
 
 export default function ProfilePage() {
+  const api = useApi();
   const { user } = useAuth();
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [stats, setStats] = useState<Record<string, number> | null>(null);
@@ -43,7 +44,10 @@ export default function ProfilePage() {
       setEditing(false);
       setMessage('Profile updated successfully.');
     } catch (err: unknown) {
-      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Update failed.');
+      setError(
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          'Update failed.'
+      );
     }
   };
 
@@ -135,11 +139,15 @@ export default function ProfilePage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <p className="text-xs uppercase tracking-wide text-base-content/50">Username</p>
-              <p className="text-base font-semibold text-base-content">{profile?.username as string}</p>
+              <p className="text-base font-semibold text-base-content">
+                {profile?.username as string}
+              </p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-base-content/50">Email</p>
-              <p className="text-base font-semibold text-base-content">{profile?.email as string}</p>
+              <p className="text-base font-semibold text-base-content">
+                {profile?.email as string}
+              </p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-base-content/50">Role</p>
@@ -158,7 +166,9 @@ export default function ProfilePage() {
             <input
               type="password"
               value={passwordForm.current_password}
-              onChange={(e) => setPasswordForm({ ...passwordForm, current_password: e.target.value })}
+              onChange={(e) =>
+                setPasswordForm({ ...passwordForm, current_password: e.target.value })
+              }
               className="input input-bordered w-full"
               required
             />
@@ -182,7 +192,9 @@ export default function ProfilePage() {
             <input
               type="password"
               value={passwordForm.password_confirmation}
-              onChange={(e) => setPasswordForm({ ...passwordForm, password_confirmation: e.target.value })}
+              onChange={(e) =>
+                setPasswordForm({ ...passwordForm, password_confirmation: e.target.value })
+              }
               className="input input-bordered w-full"
               required
             />

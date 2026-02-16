@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Medal, Trophy } from 'lucide-react';
-import api from '../lib/api';
+import { useApi } from '../contexts/AxiosContext';
 import LoadingState from '../components/ui/LoadingState';
 import EmptyState from '../components/ui/EmptyState';
 import PageHeader from '../components/ui/PageHeader';
@@ -15,6 +15,7 @@ type LeaderboardEntry = {
 };
 
 export default function LeaderboardPage() {
+  const api = useApi();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 

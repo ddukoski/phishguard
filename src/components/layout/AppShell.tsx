@@ -95,7 +95,7 @@ export default function AppShell({ user, onLogout, children }: AppShellProps) {
     <div className="drawer lg:drawer-open">
       <input id="app-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content flex min-h-screen flex-col bg-base-100">
-        <header className="border-b border-base-200 bg-base-100">
+        <header className="border-b border-base-300 bg-base-100">
           <div className="flex h-16 items-center justify-between gap-4 px-6">
             <div className="flex items-center gap-3 lg:hidden">
               <label htmlFor="app-drawer" className="btn btn-ghost btn-square btn-sm">
@@ -131,7 +131,7 @@ export default function AppShell({ user, onLogout, children }: AppShellProps) {
 
       <div className="drawer-side">
         <label htmlFor="app-drawer" className="drawer-overlay" />
-        <aside className="min-h-full w-72 border-r border-base-200 bg-base-100 overflow-y-auto">
+        <aside className="min-h-full w-72 border-r border-black/10 bg-base-200/30 dark:bg-base-300 overflow-y-auto">
           <div className="flex flex-col gap-8 px-5 py-6">
             <div className="flex items-center justify-between">
               <BrandMark />
