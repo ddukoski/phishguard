@@ -1,8 +1,12 @@
+import type { ScenarioType, Difficulty, UserRole } from '../lib/types';
+
+export type { ScenarioType, Difficulty, UserRole };
+
 export type User = {
   readonly id: string;
   readonly username: string;
   readonly email: string;
-  readonly role: 'user' | 'admin';
+  readonly role: UserRole;
   readonly avatar?: string;
   readonly is_active: boolean;
   readonly created_at: string;
@@ -29,8 +33,8 @@ export type Scenario = {
   readonly id: string;
   readonly title: string;
   readonly description: string;
-  readonly type: 'phishing_email' | 'fake_profile' | 'malicious_link' | 'messaging';
-  readonly difficulty: 'easy' | 'medium' | 'hard';
+  readonly type: ScenarioType;
+  readonly difficulty: Difficulty;
   readonly is_threat: boolean;
   readonly content: Record<string, unknown>;
   readonly html_content?: string;

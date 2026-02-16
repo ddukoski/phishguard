@@ -8,12 +8,11 @@ import {
   ShieldCheck,
   Mail,
   UserRound,
-  Link2,
   CircleAlert,
   MessageSquare,
 } from 'lucide-react';
 import { useApi } from '../../contexts/AxiosContext';
-import type { Scenario, ScenarioAttempt, Feedback } from '../../types';
+import type { Scenario, ScenarioAttempt, Feedback, ScenarioType } from '../../types';
 import PageHeader from '../../components/ui/PageHeader';
 import LoadingState from '../../components/ui/LoadingState';
 import EmptyState from '../../components/ui/EmptyState';
@@ -21,10 +20,10 @@ import SectionCard from '../../components/ui/SectionCard';
 import ScenarioContent from '../../components/scenarios/ScenarioContent';
 import { DifficultyBadge, ScenarioTypeBadge } from '../../components/ui/Badges';
 
-const typeIconMap: Record<string, typeof Mail> = {
+const typeIconMap: Record<ScenarioType, typeof Mail> = {
   phishing_email: Mail,
   fake_profile: UserRound,
-  malicious_link: Link2,
+  malicious_link: MessageSquare,
   messaging: MessageSquare,
 };
 
@@ -121,7 +120,7 @@ export default function ScenarioPlayPage() {
     );
   }
 
-  const TypeIcon = typeIconMap[scenario.type] ?? Mail;
+  const TypeIcon = typeIconMap[scenario.type];
 
   if (feedback) {
     return (
@@ -191,13 +190,7 @@ export default function ScenarioPlayPage() {
         title={scenario.title}
         description={scenario.description}
         icon={TypeIcon}
-        actions={
-          <ScenarioTypeBadge
-            type={
-              scenario.type as 'phishing_email' | 'fake_profile' | 'malicious_link' | 'messaging'
-            }
-          />
-        }
+        actions={<ScenarioTypeBadge type={scenario.type} />}
       />
 
       <SectionCard>

@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 use MongoDB\Laravel\Relations\HasMany;
 
 class User extends Authenticatable
 {
+    use HasApiTokens;
+
     protected function casts(): array
     {
         return [

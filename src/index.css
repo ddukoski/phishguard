@@ -134,3 +134,33 @@
     height: auto;
   }
 }
+
+.scenario-html-content {
+  [data-interactive='true'] {
+    cursor: pointer;
+    transition:
+      box-shadow 0.2s ease,
+      outline 0.2s ease;
+  }
+
+  [data-interactive='true']:hover {
+    box-shadow: 0 0 0 2px oklch(70% 0.25 165 / 0.5);
+    outline: 2px solid transparent;
+  }
+
+  [data-interactive='true']:focus {
+    outline: 2px solid oklch(70% 0.25 165);
+    outline-offset: 2px;
+  }
+
+  button,
+  a {
+    cursor: pointer;
+  }
+
+  img,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+}

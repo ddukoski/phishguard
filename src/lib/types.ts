@@ -40,7 +40,7 @@ export const DIFFICULTY_DISPLAY: Record<Difficulty, string> = {
 export const SCENARIO_TYPE_DISPLAY: Record<ScenarioType, string> = {
   phishing_email: 'Phishing Email',
   fake_profile: 'Fake Profile',
-  malicious_link: 'Malicious Link',
+  malicious_link: 'Messaging',
   messaging: 'Messaging',
 };
 
@@ -60,7 +60,7 @@ export const DIFFICULTY_COLORS: Record<Difficulty, string> = {
 export const SCENARIO_TYPE_COLORS: Record<ScenarioType, string> = {
   phishing_email: 'badge-info',
   fake_profile: 'badge-secondary',
-  malicious_link: 'badge-accent',
+  malicious_link: 'badge-primary',
   messaging: 'badge-primary',
 };
 
