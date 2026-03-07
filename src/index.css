@@ -90,4 +90,17 @@
   :root[data-theme='dark'] label {
     color: #e9f0dc;
   }
+
+  /* Range slider dark mode styling */
+  [data-theme='dark'] .range {
+    --range-shdw: var(--color-primary);
+  }
+
+  [data-theme='dark'] .range::-webkit-slider-runnable-track {
+    background-color: #1a240f;
+  }
+
+  [data-theme='dark'] .range::-moz-range-track {
+    background-color: #1a240f;
+  }
 }

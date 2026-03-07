@@ -1,4 +1,6 @@
+import { Moon, Sun } from 'lucide-react';
 import { useThemeCustomization } from '../contexts/ThemeCustomizationContext';
+import { useTheme } from '../components/ui/ThemeProvider';
 
 type PageHeaderProps = {
   readonly title: string;
@@ -16,13 +18,39 @@ function PageHeader({ title, description }: PageHeaderProps) {
 
 export default function SettingsPage() {
   const { customization, updateCustomization, resetCustomization } = useThemeCustomization();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div>
       <PageHeader title="Theme Settings" description="Customize your PhishGuard theme appearance" />
 
-      <div className="w-full">
-        <div className="card bg-base-200/50 border border-base-200 max-w-lg">
+      <div className="w-full space-y-6">
+        <div className="card bg-base-300/50 dark:bg-base-200/50 border border-base-300 max-w-lg">
+          <div className="card-body">
+            <h2 className="card-title text-lg text-base-content">Appearance</h2>
+            <div className="flex items-center justify-between">
+              <span className="text-base-content">Dark Mode</span>
+              <button
+                onClick={toggleTheme}
+                className="btn btn-sm gap-2"
+              >
+                {theme === 'light' ? (
+                  <>
+                    <Moon className="h-4 w-4" />
+                    <span>Enable</span>
+                  </>
+                ) : (
+                  <>
+                    <Sun className="h-4 w-4" />
+                    <span>Disable</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="card bg-base-300/50 dark:bg-base-200/50 border border-base-300 max-w-lg">
           <div className="card-body">
             <h2 className="card-title text-lg text-base-content">Primary Color</h2>
 
@@ -39,7 +67,7 @@ export default function SettingsPage() {
                   step="1"
                   value={customization.primaryHue}
                   onChange={(e) => updateCustomization({ primaryHue: Number(e.target.value) })}
-                  className="range range-sm w-full"
+                  className="range range-sm range-primary w-full"
                 />
                 <div className="flex justify-between text-xs text-base-content/50 px-1">
                   <span>Red</span>
@@ -65,7 +93,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     updateCustomization({ primarySaturation: Number(e.target.value) })
                   }
-                  className="range range-sm w-full"
+                  className="range range-sm range-primary w-full"
                 />
               </div>
 
@@ -83,7 +111,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     updateCustomization({ primaryLightness: Number(e.target.value) })
                   }
-                  className="range range-sm w-full"
+                  className="range range-sm range-primary w-full"
                 />
               </div>
 
