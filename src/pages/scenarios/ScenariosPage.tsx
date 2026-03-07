@@ -51,7 +51,7 @@ export default function ScenariosPage() {
             <option value="">All Types</option>
             <option value="phishing_email">Phishing Email</option>
             <option value="fake_profile">Fake Profile</option>
-            <option value="malicious_link">Malicious Link</option>
+            <option value="malicious_link">Messaging</option>
           </select>
           <select
             value={filter.difficulty}

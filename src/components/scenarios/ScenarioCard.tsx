@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
-import { Link2, Mail, UserRound } from 'lucide-react';
-import type { Scenario } from '../../types';
+import { MessageSquare, Mail, UserRound } from 'lucide-react';
+import type { Scenario, ScenarioType } from '../../types';
 import { DifficultyBadge } from '../ui/Badges';
 
-const typeIconMap = {
+const typeIconMap: Record<ScenarioType, typeof Mail> = {
   phishing_email: Mail,
   fake_profile: UserRound,
-  malicious_link: Link2,
+  malicious_link: MessageSquare,
+  messaging: MessageSquare,
 };
 
 type ScenarioCardProps = {
@@ -14,7 +15,7 @@ type ScenarioCardProps = {
 };
 
 export default function ScenarioCard({ scenario }: ScenarioCardProps) {
-  const Icon = typeIconMap[scenario.type] ?? Mail;
+  const Icon = typeIconMap[scenario.type];
 
   return (
     <div className="card rounded-2xl border border-base-200 bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
