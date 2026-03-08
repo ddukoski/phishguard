@@ -27,11 +27,17 @@ class ActivityLog extends Model
         ];
     }
 
+    /**
+     * Get the user for this log entry.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the scenario attempt for this log entry.
+     */
     public function attempt(): BelongsTo
     {
         return $this->belongsTo(ScenarioAttempt::class, 'attempt_id');

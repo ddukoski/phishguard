@@ -8,11 +8,11 @@ import {
   ShieldCheck,
   Mail,
   UserRound,
+  Link2,
   CircleAlert,
-  MessageSquare,
 } from 'lucide-react';
 import { useApi } from '../../contexts/AxiosContext';
-import type { Scenario, ScenarioAttempt, Feedback, ScenarioType } from '../../types';
+import type { Scenario, ScenarioAttempt, Feedback } from '../../types';
 import PageHeader from '../../components/ui/PageHeader';
 import LoadingState from '../../components/ui/LoadingState';
 import EmptyState from '../../components/ui/EmptyState';
@@ -20,11 +20,10 @@ import SectionCard from '../../components/ui/SectionCard';
 import ScenarioContent from '../../components/scenarios/ScenarioContent';
 import { DifficultyBadge, ScenarioTypeBadge } from '../../components/ui/Badges';
 
-const typeIconMap: Record<ScenarioType, typeof Mail> = {
+const typeIconMap: Record<string, typeof Mail> = {
   phishing_email: Mail,
   fake_profile: UserRound,
-  malicious_link: MessageSquare,
-  messaging: MessageSquare,
+  malicious_link: Link2,
 };
 
 export default function ScenarioPlayPage() {
@@ -55,18 +54,10 @@ export default function ScenarioPlayPage() {
   }, [id, navigate]);
 
   const handleDecision = async (identifiedAsThreat: boolean) => {
-    if (!attempt || !scenario) return;
+    if (!attempt) return;
     setSubmitting(true);
 
     const timeSpent = Math.round((Date.now() - startTime.current) / 1000);
-    const isCorrect = identifiedAsThreat === scenario.is_threat;
-    const score = isCorrect
-      ? scenario.difficulty === 'hard'
-        ? 30
-        : scenario.difficulty === 'medium'
-          ? 20
-          : 10
-      : 0;
 
     try {
       await api.post(`/attempts/${attempt.id}/action`, {
@@ -79,24 +70,8 @@ export default function ScenarioPlayPage() {
         time_spent_seconds: timeSpent,
       });
 
-      setFeedback(
-        res.data.feedback ?? {
-          correct: isCorrect,
-          explanation:
-            scenario.explanation ??
-            (isCorrect
-              ? 'Great job! You correctly identified this scenario.'
-              : `This was ${scenario.is_threat ? 'a threat' : 'safe content'}. Review the indicators below.`),
-          indicators: scenario.indicators ?? [],
-          tips: isCorrect
-            ? ['Keep practicing to maintain your skills!']
-            : [
-                'Take your time to analyze suspicious elements.',
-                'Check sender addresses and URLs carefully.',
-              ],
-        }
-      );
-      setAttempt({ ...res.data.attempt, score });
+      setFeedback(res.data.feedback);
+      setAttempt(res.data.attempt);
     } finally {
       setSubmitting(false);
     }
@@ -120,7 +95,7 @@ export default function ScenarioPlayPage() {
     );
   }
 
-  const TypeIcon = typeIconMap[scenario.type];
+  const TypeIcon = typeIconMap[scenario.type] ?? Mail;
 
   if (feedback) {
     return (
@@ -194,16 +169,11 @@ export default function ScenarioPlayPage() {
       />
 
       <SectionCard>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between">
           <span className="text-sm text-base-content/60">Difficulty</span>
           <DifficultyBadge difficulty={scenario.difficulty} />
         </div>
-        <ScenarioContent
-          type={scenario.type}
-          content={scenario.content}
-          htmlContent={scenario.html_content}
-          interactiveElements={scenario.interactive_elements}
-        />
+        <ScenarioContent type={scenario.type} content={scenario.content} />
       </SectionCard>
 
       <SectionCard title="Make the call" description="Decide whether the content is a threat.">

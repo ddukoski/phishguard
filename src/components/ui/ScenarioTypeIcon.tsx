@@ -1,6 +1,6 @@
 import type { ScenarioType } from '../../lib/types';
 import { SCENARIO_TYPE_DISPLAY } from '../../lib/types';
-import { FishSymbol, UserX, MessageSquare } from 'lucide-react';
+import { FishSymbol, Unlink, UserX } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 type ScenarioTypeIconConfig = {
@@ -11,8 +11,7 @@ type ScenarioTypeIconConfig = {
 const SCENARIO_TYPE_ICONS: Record<ScenarioType, ScenarioTypeIconConfig> = {
   phishing_email: { icon: FishSymbol, className: 'text-info' },
   fake_profile: { icon: UserX, className: 'text-secondary' },
-  malicious_link: { icon: MessageSquare, className: 'text-green-500' },
-  messaging: { icon: MessageSquare, className: 'text-green-500' },
+  malicious_link: { icon: Unlink, className: 'text-orange-500' },
 };
 
 type ScenarioTypeIconProps = {

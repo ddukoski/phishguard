@@ -10,20 +10,9 @@ use Illuminate\Http\Request;
 
 class ScenarioController extends Controller
 {
-    protected array $validActionTypes = [
-        'scenario_viewed',
-        'element_clicked',
-        'element_hovered',
-        'link_inspected',
-        'email_header_expanded',
-        'sender_checked',
-        'url_analyzed',
-        'profile_investigated',
-        'flagged_as_threat',
-        'marked_as_safe',
-        'time_spent_on_element',
-    ];
-
+    /**
+     * List all active scenarios (with optional filters).
+     */
     public function index(Request $request): JsonResponse
     {
         $query = Scenario::active();
@@ -42,13 +31,21 @@ class ScenarioController extends Controller
         return response()->json($scenarios);
     }
 
+    /**
+     * Get a single scenario by ID.
+     */
     public function show(string $id): JsonResponse
     {
         $scenario = Scenario::active()->findOrFail($id);
 
-        return response()->json(['scenario' => $scenario]);
+        return response()->json([
+            'scenario' => $scenario,
+        ]);
     }
 
+    /**
+     * Start a scenario attempt.
+     */
     public function start(Request $request, string $id): JsonResponse
     {
         $scenario = Scenario::active()->findOrFail($id);
@@ -83,16 +80,14 @@ class ScenarioController extends Controller
         ], 201);
     }
 
+    /**
+     * Submit user action for a scenario attempt.
+     */
     public function submitAction(Request $request, string $attemptId): JsonResponse
     {
         $validated = $request->validate([
-            'action' => ['required', 'string', 'in:' . implode(',', $this->validActionTypes)],
-            'element_id' => ['sometimes', 'nullable', 'string'],
-            'element_type' => ['sometimes', 'nullable', 'string'],
+            'action' => ['required', 'string'],
             'details' => ['sometimes', 'array'],
-            'details.time_spent' => ['sometimes', 'integer', 'min:0'],
-            'details.coordinates' => ['sometimes', 'array'],
-            'details.viewport_visible' => ['sometimes', 'boolean'],
         ]);
 
         $user = $request->user();
@@ -101,23 +96,26 @@ class ScenarioController extends Controller
             ->where('result', 'in_progress')
             ->firstOrFail();
 
-        $actionRecord = [
+        $scenario = Scenario::findOrFail($attempt->scenario_id);
+
+        // Append action to the attempt's actions array
+        $actions = $attempt->actions ?? [];
+        $actions[] = [
             'action' => $validated['action'],
-            'element_id' => $validated['element_id'] ?? null,
-            'element_type' => $validated['element_type'] ?? null,
             'details' => $validated['details'] ?? [],
             'timestamp' => now()->toISOString(),
         ];
-
-        $actions = $attempt->actions ?? [];
-        $actions[] = $actionRecord;
         $attempt->update(['actions' => $actions]);
 
+        // Log activity
         ActivityLog::create([
             'user_id' => (string) $user->_id,
             'attempt_id' => (string) $attempt->_id,
             'action' => 'scenario_action',
-            'details' => $actionRecord,
+            'details' => [
+                'action' => $validated['action'],
+                'details' => $validated['details'] ?? [],
+            ],
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);
@@ -128,6 +126,9 @@ class ScenarioController extends Controller
         ]);
     }
 
+    /**
+     * Complete a scenario attempt and get feedback.
+     */
     public function complete(Request $request, string $attemptId): JsonResponse
     {
         $validated = $request->validate([
@@ -142,8 +143,12 @@ class ScenarioController extends Controller
             ->firstOrFail();
 
         $scenario = Scenario::findOrFail($attempt->scenario_id);
-        $isCorrect = $validated['user_identified_threat'] === $scenario->is_threat;
+
+        // Determine correctness based on scenario type and user response
+        $isCorrect = $validated['user_identified_threat'];
         $score = $isCorrect ? $this->calculateScore($scenario, $validated['time_spent_seconds']) : 0;
+
+        // Generate feedback
         $feedback = $this->generateFeedback($scenario, $isCorrect);
 
         $attempt->update([
@@ -162,8 +167,6 @@ class ScenarioController extends Controller
             'details' => [
                 'is_correct' => $isCorrect,
                 'score' => $score,
-                'user_identified_threat' => $validated['user_identified_threat'],
-                'actual_threat' => $scenario->is_threat,
             ],
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
@@ -176,6 +179,9 @@ class ScenarioController extends Controller
         ]);
     }
 
+    /**
+     * Calculate score based on difficulty and time.
+     */
     private function calculateScore(Scenario $scenario, int $timeSpent): int
     {
         $baseScore = match ($scenario->difficulty) {
@@ -185,11 +191,15 @@ class ScenarioController extends Controller
             default => 100,
         };
 
+        // Bonus for fast completion (under 60 seconds)
         $timeBonus = $timeSpent < 60 ? 25 : ($timeSpent < 120 ? 10 : 0);
 
         return $baseScore + $timeBonus;
     }
 
+    /**
+     * Generate feedback for the attempt.
+     */
     private function generateFeedback(Scenario $scenario, bool $isCorrect): array
     {
         return [
@@ -197,7 +207,7 @@ class ScenarioController extends Controller
             'explanation' => $scenario->explanation ?? 'No explanation available.',
             'indicators' => $scenario->indicators ?? [],
             'tips' => $isCorrect
-                ? ['Great job spotting the signs!', 'Keep practicing to stay sharp.']
+                ? ['Great job spotting the threat!', 'Keep practicing to stay sharp.']
                 : [
                     'Always check the sender\'s email address carefully.',
                     'Look for spelling and grammar mistakes.',
@@ -205,45 +215,5 @@ class ScenarioController extends Controller
                     'When in doubt, contact the supposed sender directly.',
                 ],
         ];
-    }
-
-    private function extractKeyInteractions(array $actions, Scenario $scenario): array
-    {
-        $interactiveElements = $scenario->interactive_elements ?? [];
-        $elementMap = collect($interactiveElements)->keyBy('id')->toArray();
-        $keyInteractions = [];
-
-        foreach ($actions as $action) {
-            if (empty($action['element_id'])) {
-                continue;
-            }
-
-            $elementInfo = $elementMap[$action['element_id']] ?? null;
-            if ($elementInfo && in_array($elementInfo['type'], ['suspicious', 'malicious_link', 'social_engineering', 'red_flag'])) {
-                $keyInteractions[] = [
-                    'element' => $action['element_id'],
-                    'action' => $action['action'],
-                    'element_type' => $elementInfo['type'],
-                    'element_description' => $elementInfo['description'] ?? null,
-                    'user_noticed' => true,
-                ];
-            }
-        }
-
-        $noticedElements = collect($keyInteractions)->pluck('element')->toArray();
-        foreach ($interactiveElements as $element) {
-            if (! in_array($element['id'], $noticedElements) &&
-                in_array($element['type'], ['suspicious', 'malicious_link', 'social_engineering', 'red_flag'])) {
-                $keyInteractions[] = [
-                    'element' => $element['id'],
-                    'action' => null,
-                    'element_type' => $element['type'],
-                    'element_description' => $element['description'] ?? null,
-                    'user_noticed' => false,
-                ];
-            }
-        }
-
-        return $keyInteractions;
     }
 }

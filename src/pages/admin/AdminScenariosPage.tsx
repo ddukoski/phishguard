@@ -161,7 +161,7 @@ export default function AdminScenariosPage() {
                 >
                   <option value="phishing_email">Phishing Email</option>
                   <option value="fake_profile">Fake Profile</option>
-                  <option value="malicious_link">Messaging</option>
+                  <option value="malicious_link">Malicious Link</option>
                 </select>
               </label>
               <label className="form-control">

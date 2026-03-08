@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Scenario;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -37,7 +38,7 @@ class DatabaseSeeder extends Seeder
         // Create 10 random users
         User::factory(10)->create();
 
-        // Create realistic phishing scenarios with HTML content
-        $this->call(ScenarioSeeder::class);
+        // Create 20 phishing scenarios
+        Scenario::factory(20)->create();
     }
 }

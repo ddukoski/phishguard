@@ -83,8 +83,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $user->last_login_at = now();
-        $user->save();
+        $user->update(['last_login_at' => now()]);
 
         $token = $user->createToken('auth-token')->plainTextToken;
 

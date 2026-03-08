@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 
 class ProgressController extends Controller
 {
+    /**
+     * Get the user's progress dashboard.
+     */
     public function dashboard(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -70,6 +73,9 @@ class ProgressController extends Controller
         ]);
     }
 
+    /**
+     * Get the user's attempt history.
+     */
     public function history(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -82,6 +88,9 @@ class ProgressController extends Controller
         return response()->json($attempts);
     }
 
+    /**
+     * Get leaderboard.
+     */
     public function leaderboard(Request $request): JsonResponse
     {
         $leaderboard = ScenarioAttempt::raw(function ($collection) {
