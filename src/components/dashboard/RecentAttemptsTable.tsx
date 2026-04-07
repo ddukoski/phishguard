@@ -11,7 +11,9 @@ import {
   Clock,
   PlayCircle,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import AttemptDetailsDialog from './AttemptDetailsDialog';
 
 import type { LucideIcon } from 'lucide-react';
 
@@ -39,6 +41,20 @@ function ResultIcon({ result }: { readonly result: AttemptResult }) {
 }
 
 export default function RecentAttemptsTable({ attempts }: RecentAttemptsTableProps) {
+  const [selected, setSelected] = useState<ScenarioAttempt | null>(null);
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const openAttempt = (attempt: ScenarioAttempt) => {
+    setSelected(attempt);
+    setOpen(true);
+  };
+
+  const closeAttempt = () => {
+    setOpen(false);
+    setSelected(null);
+  };
+
   if (attempts.length === 0) {
     return (
       <EmptyState
@@ -55,40 +71,63 @@ export default function RecentAttemptsTable({ attempts }: RecentAttemptsTablePro
   }
 
   return (
-    <SectionCard title="Recent Attempts" description="Your latest scenario outcomes.">
-      <div className="overflow-x-auto">
-        <table className="table table-zebra">
-          <thead>
-            <tr>
-              <th>Scenario</th>
-              <th>Type</th>
-              <th>Result</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {attempts.map((attempt) => {
-              const scenarioType = (attempt.scenario?.type ?? 'phishing_email') as ScenarioType;
-              return (
-                <tr key={attempt.id}>
-                  <td>
-                    <div className="font-medium">
-                      {attempt.scenario?.title ?? 'Untitled scenario'}
-                    </div>
-                  </td>
-                  <td>
-                    <ScenarioTypeIcon type={scenarioType} />
-                  </td>
-                  <td>
-                    <ResultIcon result={attempt.result} />
-                  </td>
-                  <td className="font-semibold">{attempt.score}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </SectionCard>
+    <>
+      <SectionCard title="Recent Attempts" description="Your latest scenario outcomes.">
+        <div className="overflow-x-auto">
+          <table className="table table-zebra">
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Type</th>
+                <th>Result</th>
+                <th>Score</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {attempts.map((attempt) => {
+                const scenarioType = (attempt.scenario?.type ?? 'phishing_email') as ScenarioType;
+                const scenarioId = attempt.scenario?.id ?? attempt.scenario_id;
+                return (
+                  <tr key={attempt.id}>
+                    <td>
+                      <div className="font-medium">
+                        {attempt.scenario?.title ?? 'Untitled scenario'}
+                      </div>
+                    </td>
+                    <td>
+                      <ScenarioTypeIcon type={scenarioType} />
+                    </td>
+                    <td>
+                      <ResultIcon result={attempt.result} />
+                    </td>
+                    <td className="font-semibold">{attempt.score}</td>
+                    <td>
+                      {attempt.result === 'in_progress' ? (
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => {
+                            if (!scenarioId) return;
+                            navigate(`/scenarios/${scenarioId}`);
+                          }}
+                        >
+                          Continue
+                        </button>
+                      ) : (
+                        <button className="btn btn-sm" onClick={() => openAttempt(attempt)}>
+                          Details
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
+
+      <AttemptDetailsDialog attempt={selected} open={open} onClose={closeAttempt} />
+    </>
   );
 }

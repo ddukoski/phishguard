@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Scenario;
 use App\Models\ScenarioAttempt;
+use App\Services\OpenAIService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ScenarioController extends Controller
 {
+
     protected array $validActionTypes = [
         'scenario_viewed',
         'element_clicked',
@@ -53,9 +55,23 @@ class ScenarioController extends Controller
     {
         $scenario = Scenario::active()->findOrFail($id);
         $user = $request->user();
+        $userId = (string) $user->_id;
+
+        $existingAttempt = ScenarioAttempt::where('user_id', $userId)
+            ->where('scenario_id', (string) $scenario->_id)
+            ->where('result', 'in_progress')
+            ->first();
+
+        if ($existingAttempt) {
+            return response()->json([
+                'message' => 'Scenario resumed.',
+                'attempt' => $existingAttempt,
+                'scenario' => $scenario,
+            ], 200);
+        }
 
         $attempt = ScenarioAttempt::create([
-            'user_id' => (string) $user->_id,
+            'user_id' => $userId,
             'scenario_id' => (string) $scenario->_id,
             'actions' => [],
             'result' => 'in_progress',
@@ -65,7 +81,7 @@ class ScenarioController extends Controller
         ]);
 
         ActivityLog::create([
-            'user_id' => (string) $user->_id,
+            'user_id' => $userId,
             'attempt_id' => (string) $attempt->_id,
             'action' => 'scenario_started',
             'details' => [
@@ -133,6 +149,7 @@ class ScenarioController extends Controller
         $validated = $request->validate([
             'user_identified_threat' => ['required', 'boolean'],
             'time_spent_seconds' => ['required', 'integer', 'min:0'],
+            'description' => ['required', 'string', 'max:10000'],
         ]);
 
         $user = $request->user();
@@ -141,10 +158,26 @@ class ScenarioController extends Controller
             ->where('result', 'in_progress')
             ->firstOrFail();
 
+        error_log($attempt->scenario_id);
         $scenario = Scenario::findOrFail($attempt->scenario_id);
-        $isCorrect = $validated['user_identified_threat'] === $scenario->is_threat;
+        /** @var Scenario $scenario */
+        $receivedDescription = $validated['description'] ?? null;
+        $isCorrect = ($validated['user_identified_threat'] ?? false) === ($scenario->is_threat ?? false);
         $score = $isCorrect ? $this->calculateScore($scenario, $validated['time_spent_seconds']) : 0;
         $feedback = $this->generateFeedback($scenario, $isCorrect);
+
+        $keyInteractions = $this->extractKeyInteractions($attempt->actions ?? [], $scenario);
+
+        $scenarioData = [
+            'id' => (string) $scenario->_id,
+            'title' => $scenario->title ?? null,
+            'description' => $scenario->description ?? null,
+            'type' => $scenario->type ?? null,
+            'difficulty' => $scenario->difficulty ?? null,
+            'indicators' => $scenario->indicators ?? [],
+            'explanation' => $scenario->explanation ?? null,
+            'content' => $scenario->content ?? null,
+        ];
 
         $attempt->update([
             'result' => $isCorrect ? 'correct' : 'incorrect',
@@ -152,6 +185,9 @@ class ScenarioController extends Controller
             'is_correct' => $isCorrect,
             'time_spent_seconds' => $validated['time_spent_seconds'],
             'feedback' => $feedback,
+            'description' => $receivedDescription ?? null,
+            // AI review is generated explicitly from the results screen.
+            'ai_review' => null,
             'completed_at' => now(),
         ]);
 
@@ -164,6 +200,7 @@ class ScenarioController extends Controller
                 'score' => $score,
                 'user_identified_threat' => $validated['user_identified_threat'],
                 'actual_threat' => $scenario->is_threat,
+                'description' => $receivedDescription ?? null,
             ],
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
@@ -173,6 +210,80 @@ class ScenarioController extends Controller
             'message' => $isCorrect ? 'Correct! Well done.' : 'Incorrect. Review the feedback.',
             'attempt' => $attempt->fresh(),
             'feedback' => $feedback,
+            'actual_threat' => $scenario->is_threat ?? false,
+            'key_interactions' => $keyInteractions,
+        ]);
+    }
+
+    public function generateAiReview(Request $request, string $attemptId, OpenAIService $openAI): JsonResponse
+    {
+        $user = $request->user();
+        $attempt = ScenarioAttempt::where('_id', $attemptId)
+            ->where('user_id', (string) $user->_id)
+            ->firstOrFail();
+
+        if (! $attempt->completed_at) {
+            return response()->json([
+                'message' => 'Complete the scenario before generating an AI review.',
+            ], 422);
+        }
+
+        if (! empty($attempt->ai_review) && $attempt->ai_review !== 'AI review unavailable.') {
+            return response()->json([
+                'message' => 'AI review already generated.',
+                'ai_review' => $attempt->ai_review,
+                'attempt' => $attempt,
+            ]);
+        }
+
+        $scenario = Scenario::findOrFail($attempt->scenario_id);
+        /** @var Scenario $scenario */
+        $description = trim((string) ($attempt->description ?? ''));
+
+        if ($description === '') {
+            return response()->json([
+                'message' => 'A user explanation is required to generate AI review.',
+            ], 422);
+        }
+
+        $scenarioData = [
+            'id' => (string) $scenario->_id,
+            'title' => $scenario->title ?? null,
+            'description' => $scenario->description ?? null,
+            'type' => $scenario->type ?? null,
+            'difficulty' => $scenario->difficulty ?? null,
+            'indicators' => $scenario->indicators ?? [],
+            'explanation' => $scenario->explanation ?? null,
+            'content' => $scenario->content ?? null,
+        ];
+
+        try {
+            $analysis = $openAI->generateClassificationAnalysis($scenarioData, $description, (bool) $attempt->is_correct);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 502);
+        }
+
+        $attempt->update([
+            'ai_review' => $analysis,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => (string) $user->_id,
+            'attempt_id' => (string) $attempt->_id,
+            'action' => 'scenario_ai_review_generated',
+            'details' => [
+                'scenario_id' => (string) $scenario->_id,
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return response()->json([
+            'message' => 'AI review generated.',
+            'ai_review' => $analysis,
+            'attempt' => $attempt->fresh(),
         ]);
     }
 
@@ -188,6 +299,17 @@ class ScenarioController extends Controller
         $timeBonus = $timeSpent < 60 ? 25 : ($timeSpent < 120 ? 10 : 0);
 
         return $baseScore + $timeBonus;
+    }
+
+    private function toggleScenarioState(string $scenarioId): JsonResponse {
+        $scenario = Scenario::findOrFail($scenarioId);
+        $scenario->is_active = ! $scenario->is_active;
+        $scenario->save();
+
+        return response()->json([
+            'message' => 'Scenario state toggled successfully.',
+            'scenario' => $scenario,
+        ]);
     }
 
     private function generateFeedback(Scenario $scenario, bool $isCorrect): array

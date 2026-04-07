@@ -14,6 +14,7 @@ import SettingsPage from './pages/SettingsPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminScenariosPage from './pages/admin/AdminScenariosPage';
+import ScenarioGenerationPage from './pages/admin/ScenarioGenerationPage';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { ThemeProvider } from './components/ui/ThemeProvider';
 import { ThemeCustomizationProvider } from './contexts/ThemeCustomizationContext';
@@ -45,6 +46,7 @@ export default function App() {
                     <Route path="/admin" element={<AdminAnalyticsPage />} />
                     <Route path="/admin/users" element={<AdminUsersPage />} />
                     <Route path="/admin/scenarios" element={<AdminScenariosPage />} />
+                    <Route path="/admin/generate" element={<ScenarioGenerationPage />} />
                   </Route>
 
                   <Route path="*" element={<Navigate to="/login" replace />} />
