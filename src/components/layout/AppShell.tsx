@@ -44,6 +44,7 @@ const adminNavItems: readonly NavItem[] = [
   { to: '/admin', label: 'Admin Analytics', icon: BarChart3, end: true },
   { to: '/admin/scenarios', label: 'Manage Scenarios', icon: ListChecks, end: true },
   { to: '/admin/users', label: 'Manage Users', icon: Users, end: true },
+  { to: '/admin/generate', label: 'Generate AI Scenario', icon: Target, end:true },
 ] as const;
 
 function NavItemLink({ item }: { readonly item: NavItem }) {

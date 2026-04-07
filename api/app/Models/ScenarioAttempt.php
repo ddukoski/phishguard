@@ -22,6 +22,8 @@ class ScenarioAttempt extends Model
         'time_spent_seconds',
         'feedback',
         'completed_at',
+        'description',
+        'ai_review',
     ];
 
     protected function casts(): array
@@ -33,6 +35,8 @@ class ScenarioAttempt extends Model
             'score' => 'integer',
             'time_spent_seconds' => 'integer',
             'completed_at' => 'datetime',
+            'description' => 'string',
+            'ai_review' => 'string',
         ];
     }
 

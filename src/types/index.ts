@@ -88,6 +88,8 @@ export type ScenarioAttempt = {
   readonly completed_at?: string;
   readonly created_at: string;
   readonly scenario?: Scenario;
+  readonly description?: string | null;
+  readonly ai_review?: string | null;
 };
 
 export type DashboardStats = {

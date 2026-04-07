@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ListChecks, Plus } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useApi } from '../../contexts/AxiosContext';
 import type { Scenario } from '../../types';
 import type { ScenarioType, Difficulty } from '../../lib/types';
@@ -40,6 +41,7 @@ export default function AdminScenariosPage() {
   const [form, setForm] = useState<ScenarioForm>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [statusUpdating, setStatusUpdating] = useState<Set<string>>(new Set());
 
   const fetchScenarios = () => {
     api
@@ -80,6 +82,33 @@ export default function AdminScenariosPage() {
       fetchScenarios();
     } catch (err: unknown) {
       setError(getErrorMessage(err));
+    }
+  };
+
+  const handleActivate = async (scenarioId: string) => {
+    setStatusUpdating((prev) => new Set(prev).add(scenarioId));
+
+    try {
+      const response = await api.patch(`/admin/scenarios/${scenarioId}/toggle-status`);
+      const updatedScenario = response.data?.scenario as Scenario | undefined;
+
+      if (updatedScenario?.id) {
+        setScenarios((prev) =>
+          prev.map((scenario) => (scenario.id === scenarioId ? updatedScenario : scenario)),
+        );
+        toast.success(`Scenario ${updatedScenario.is_active ? 'activated' : 'deactivated'}.`);
+      } else {
+        fetchScenarios();
+        toast.success('Scenario status updated.');
+      }
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setStatusUpdating((prev) => {
+        const next = new Set(prev);
+        next.delete(scenarioId);
+        return next;
+      });
     }
   };
 
@@ -253,7 +282,7 @@ export default function AdminScenariosPage() {
         <div className="overflow-x-auto">
           <table className="table table-zebra">
             <thead>
-              <tr>
+              <tr className="text-center">
                 <th>Title</th>
                 <th>Type</th>
                 <th>Difficulty</th>
@@ -263,7 +292,7 @@ export default function AdminScenariosPage() {
             </thead>
             <tbody>
               {scenarios.map((scenario) => (
-                <tr key={scenario.id}>
+                <tr className="text-center" key={scenario.id}>
                   <td className="font-medium text-base-content">{scenario.title}</td>
                   <td>
                     <ScenarioTypeIcon type={scenario.type} />
@@ -274,7 +303,7 @@ export default function AdminScenariosPage() {
                   <td>
                     <ActiveBadge isActive={scenario.is_active} />
                   </td>
-                  <td className="flex flex-wrap gap-2">
+                  <td className="flex gap-2">
                     <button onClick={() => handleEdit(scenario)} className="btn btn-ghost btn-xs">
                       Edit
                     </button>
@@ -283,6 +312,17 @@ export default function AdminScenariosPage() {
                       className="btn btn-ghost btn-xs text-error"
                     >
                       Delete
+                    </button>
+                    <button
+                      onClick={() => handleActivate(scenario.id)}
+                      className="btn btn-ghost btn-xs"
+                      disabled={statusUpdating.has(scenario.id)}
+                    >
+                      {statusUpdating.has(scenario.id)
+                        ? 'Updating...'
+                        : scenario.is_active
+                          ? 'Deactivate'
+                          : 'Activate'}
                     </button>
                   </td>
                 </tr>

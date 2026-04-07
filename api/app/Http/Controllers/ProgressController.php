@@ -29,14 +29,23 @@ class ProgressController extends Controller
             ? round(($correctAttempts / $completedAttempts) * 100, 1)
             : 0;
 
-        // Recent attempts
         $recentAttempts = ScenarioAttempt::where('user_id', $userId)
             ->with('scenario:title,type,difficulty')
             ->orderBy('created_at', 'desc')
-            ->limit(10)
+            ->limit(50)
             ->get();
 
-        // Stats by scenario type
+        $seen = [];
+        $uniqueAttempts = collect();
+        foreach ($recentAttempts as $attempt) {
+            $sid = (string) ($attempt->scenario_id ?? $attempt->scenario?->_id ?? null);
+            if (!$sid) continue;
+            if (in_array($sid, $seen, true)) continue;
+            $seen[] = $sid;
+            $uniqueAttempts->push($attempt);
+            if ($uniqueAttempts->count() >= 10) break;
+        }
+
         $statsByType = ScenarioAttempt::raw(function ($collection) use ($userId) {
             return $collection->aggregate([
                 ['$match' => ['user_id' => $userId, 'completed_at' => ['$ne' => null]]],
@@ -65,7 +74,7 @@ class ProgressController extends Controller
                 'total_score' => $totalScore,
                 'average_time_seconds' => round($averageTime ?? 0),
             ],
-            'recent_attempts' => $recentAttempts,
+            'recent_attempts' => $uniqueAttempts,
             'stats_by_type' => $statsByType,
         ]);
     }
@@ -87,24 +96,34 @@ class ProgressController extends Controller
         $leaderboard = ScenarioAttempt::raw(function ($collection) {
             return $collection->aggregate([
                 ['$match' => ['completed_at' => ['$ne' => null]]],
+
                 ['$group' => [
                     '_id' => '$user_id',
-                    'total_score' => ['$sum' => '$score'],
+                    'total_score' => ['$sum' => ['$ifNull' => ['$score', 0]]],
                     'total_correct' => ['$sum' => ['$cond' => ['$is_correct', 1, 0]]],
                     'total_attempts' => ['$sum' => 1],
                 ]],
+                ['$match' => ['total_score' => ['$gt' => 0]]],
+
                 ['$sort' => ['total_score' => -1]],
+
                 ['$limit' => 50],
+
                 ['$lookup' => [
                     'from' => 'users',
-                    'localField' => '_id',
-                    'foreignField' => '_id',
+                    'let' => ['uid' => '$_id'],
+                    'pipeline' => [
+                        ['$addFields' => ['_id_str' => ['$toString' => '$_id']]],
+                        ['$match' => ['$expr' => ['$eq' => ['$_id_str', '$$uid']]]],
+                    ],
                     'as' => 'user',
                 ]],
-                ['$unwind' => '$user'],
+
+                ['$unwind' => ['path' => '$user', 'preserveNullAndEmptyArrays' => true]],
+
                 ['$project' => [
+                    '_id' => 0,
                     'username' => '$user.username',
-                    'avatar' => '$user.avatar',
                     'total_score' => 1,
                     'total_correct' => 1,
                     'total_attempts' => 1,

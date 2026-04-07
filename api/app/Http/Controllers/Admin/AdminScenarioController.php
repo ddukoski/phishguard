@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Scenario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Services\OpenAIService;
+use Illuminate\Support\Facades\Log;
 
 class AdminScenarioController extends Controller
 {
-    /**
-     * List all scenarios (including inactive).
-     */
+
     public function index(Request $request): JsonResponse
     {
         $query = Scenario::query();
@@ -30,9 +30,6 @@ class AdminScenarioController extends Controller
         return response()->json($scenarios);
     }
 
-    /**
-     * Create a new scenario.
-     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -42,6 +39,8 @@ class AdminScenarioController extends Controller
             'difficulty' => ['required', 'string', 'in:easy,medium,hard'],
             'is_threat' => ['required', 'boolean'],
             'content' => ['required', 'array'],
+            'html_content' => ['sometimes', 'nullable', 'string'],
+            'interactive_elements' => ['sometimes', 'array'],
             'indicators' => ['sometimes', 'array'],
             'explanation' => ['required', 'string'],
             'media' => ['sometimes', 'array'],
@@ -58,9 +57,6 @@ class AdminScenarioController extends Controller
         ], 201);
     }
 
-    /**
-     * Show a single scenario.
-     */
     public function show(string $id): JsonResponse
     {
         $scenario = Scenario::findOrFail($id);
@@ -77,9 +73,6 @@ class AdminScenarioController extends Controller
         ]);
     }
 
-    /**
-     * Update a scenario.
-     */
     public function update(Request $request, string $id): JsonResponse
     {
         $scenario = Scenario::findOrFail($id);
@@ -91,6 +84,8 @@ class AdminScenarioController extends Controller
             'difficulty' => ['sometimes', 'string', 'in:easy,medium,hard'],
             'is_threat' => ['sometimes', 'boolean'],
             'content' => ['sometimes', 'array'],
+            'html_content' => ['sometimes', 'nullable', 'string'],
+            'interactive_elements' => ['sometimes', 'array'],
             'indicators' => ['sometimes', 'array'],
             'explanation' => ['sometimes', 'string'],
             'media' => ['sometimes', 'array'],
@@ -105,9 +100,6 @@ class AdminScenarioController extends Controller
         ]);
     }
 
-    /**
-     * Delete a scenario.
-     */
     public function destroy(string $id): JsonResponse
     {
         $scenario = Scenario::findOrFail($id);
@@ -116,5 +108,52 @@ class AdminScenarioController extends Controller
         return response()->json([
             'message' => 'Scenario deleted successfully.',
         ]);
+    }
+
+    public function toggleActive(string $id): JsonResponse
+    {
+        $scenario = Scenario::findOrFail($id);
+        $scenario->is_active = !$scenario->is_active;
+        $scenario->save();
+
+        return response()->json([
+            'message' => 'Scenario ' . ($scenario->is_active ? 'activated' : 'deactivated') . ' successfully.',
+            'scenario' => $scenario,
+        ]);
+    }
+
+    public function generateScenario(Request $request, OpenAIService $openAI): JsonResponse {
+        $validated = $request->validate([
+            'difficulty' => ['required', 'string', 'in:easy,medium,hard'],
+            'description' => ['sometimes', 'nullable', 'string'],
+            'type' => ['required', 'string', 'in:phishing_email,fake_profile,malicious_link'],
+        ]);
+
+        try {
+            $generated = $openAI->generateScenarioFromExample(
+                $validated['difficulty'],
+                $validated['type'],
+                $validated['description'] ?? ''
+            );
+
+            return response()->json(['scenario' => $generated]);
+        } catch (\Throwable $e) {
+            $msg = $e->getMessage();
+            Log::error('OpenAI generation failed: ' . $msg);
+
+            if (stripos($msg, 'No example scenario found') !== false) {
+                return response()->json(['message' => $msg], 404);
+            }
+
+            $isTimeout = stripos($msg, 'cURL error 28') !== false
+                || stripos($msg, 'Operation timed out') !== false
+                || stripos($msg, 'timed out') !== false;
+
+            if ($isTimeout) {
+                return response()->json(['message' => 'OpenAI request timed out. Please try again.'], 504);
+            }
+
+            return response()->json(['message' => 'Failed to generate scenario.'], 502);
+        }
     }
 }
